@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LifeFit Gym Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a consultant's working drawing board — direct, practical, quick to scan.
+   IDEA: an architect's floor-plan sheet on a gym-signage control desk.
+   PICTURE: the live scaled floor plan, zones tinted, every machine drawn to footprint with clearances.
+   COLOUR and TYPE: graphite control band, white drawing paper, one signal red-orange; Barlow Condensed signage + Barlow.
+   LAYOUT: voice/command bar on top; brief on the left, plan + equipment list on the right; stacks under 900px. */
+:root{color-scheme:light dark;--bg:light-dark(#f2f2ef,#0e1013);--panel:light-dark(#fff,#171a1f);--ink:light-dark(#14171b,#eceef1);--mute:light-dark(#5b626b,#9ba4ae);--line:light-dark(#e1e2de,#2a2f37);--acc:#e8441c;--acc2:light-dark(#b9330f,#ff8358);--field:light-dark(#fff,#0f1216);--soft:light-dark(#fff1ec,#2a1812);--band:#15181c;--bandInk:#f2f3f5}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Barlow,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:'Barlow Condensed',Barlow,sans-serif;font-weight:700;line-height:1.05;margin:0;text-wrap:balance}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.top{background:var(--band);color:var(--bandInk);display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:12px max(3vw,14px) 8px}
+.brand{display:flex;gap:11px;align-items:center;margin-right:auto}
+.mark{width:40px;height:40px;border-radius:9px;background:var(--acc);display:grid;place-items:center;font:700 19px 'Barlow Condensed';color:#fff;flex:none}
+.brand b{font:700 23px/1 'Barlow Condensed';display:block}.brand small{color:#a9b0b9;font-size:13px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tabs button,.hb{background:transparent;color:#cdd2d8;border:1px solid transparent;padding:8px 13px;border-radius:8px;font-weight:600;font-size:15px;min-height:44px}
+.tabs button.on{background:#2b3038;color:#fff}.hb{border-color:#363c45}.hb:hover,.tabs button:hover{color:#fff}
+.hact{display:flex;gap:6px;flex-wrap:wrap}
+.cmd{background:var(--band);color:var(--bandInk);padding:10px max(3vw,14px) 16px;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;align-items:center}
+.mic{width:62px;height:62px;border-radius:50%;border:0;background:var(--acc);color:#fff;display:grid;place-items:center;grid-row:span 2}
+.mic.on{animation:pulse 1.3s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,68,28,.6)}100%{box-shadow:0 0 0 18px rgba(232,68,28,0)}}
+@media (prefers-reduced-motion:reduce){.mic.on{animation:none;outline:3px solid #fff}}
+#cmdForm{display:flex;gap:8px}
+#cmdIn{flex:1;font-size:16px;padding:11px 14px;border-radius:10px;border:1px solid #3a414b;background:#0c0e11;color:#fff;min-height:48px}
+#cmdIn::placeholder{color:#7d858f}
+.run{background:#fff;color:#15181c;border:0;border-radius:10px;padding:0 18px;font-weight:700;min-height:48px}
+.heard{font-size:14px;color:#b9bfc7;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;min-height:26px}
+.chip{background:#262b32;color:#e9ecef;border-radius:999px;padding:2px 10px;font-size:13px}.chip.bad{background:#4a2118;color:#ffd0c2}
+.heard .q{color:#fff}.heard a,.heard button.lnk{color:#ffb39b;background:none;border:0;padding:0;text-decoration:underline;font-size:14px}
+.help{grid-column:1/-1;background:#1d2126;border-radius:10px;padding:12px 16px;font-size:14px;color:#d3d8de}
+.help ul{margin:6px 0 0;padding-left:18px;columns:2 300px}.help code{color:#fff;background:#2a3038;padding:1px 6px;border-radius:5px}
+.view{padding:18px max(3vw,14px) 48px}
+.plan{display:grid;grid-template-columns:minmax(290px,370px) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:900px){.plan{grid-template-columns:minmax(0,1fr)}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+.card h2{font-size:23px;margin-bottom:10px}
+.f{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.f .w2{grid-column:1/-1}
+.l{display:grid;gap:3px;font-size:13px;color:var(--mute);font-weight:600}
+input,select,textarea{font:16px Barlow,sans-serif;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-height:44px;width:100%}
+textarea{min-height:120px}
+input[type=checkbox]{width:20px;min-height:20px;height:20px;accent-color:var(--acc)}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{flex:1;background:var(--field);color:var(--ink);border:0;min-height:44px;font-weight:600}.seg button.on{background:var(--ink);color:var(--panel)}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 13px;min-height:44px;font-weight:600;font-size:15px}
+.btn:hover{border-color:var(--mute)}.btn.acc{background:var(--acc);border-color:var(--acc);color:#fff}.btn.sm{min-height:36px;padding:5px 10px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.alloc{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin:4px 0 6px}
+.alloc i{display:block;height:100%}
+.allocT{font-size:14px;color:var(--mute);margin-bottom:6px}.allocT b{color:var(--ink)}.warn{color:var(--acc2);font-weight:600}
+.zone{display:grid;grid-template-columns:14px minmax(0,1fr) 86px 40px 36px;gap:8px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.sw{width:14px;height:14px;border-radius:4px}
+.zone .pct{font-size:13px;color:var(--mute);text-align:right;white-space:nowrap}
+.zx{background:none;border:0;color:var(--mute);font-size:22px;min-height:36px;border-radius:8px}.zx:hover{color:var(--acc2)}
+.zone details{grid-column:2/-1;font-size:14px}
+.zone summary{color:var(--mute);cursor:pointer;padding:2px 0}
+.zone .zname{grid-column:2/-1}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;margin:8px 0}
+.pk{display:grid;grid-template-columns:minmax(0,1fr) 58px;gap:6px;align-items:center;font-size:13px}
+.pk input{min-height:36px;padding:4px 6px}
+.rule{color:var(--mute);font-size:13px;margin:4px 0}
+.stage{min-width:0}
+.ltabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media(max-width:720px){.ltabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.lt{text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--ink)}
+.lt.on{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.lt b{font:700 18px/1.1 'Barlow Condensed';display:block}.lt small{color:var(--mute);font-size:13px;display:block}
+.ptools{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:12px 0 8px}
+.ptools .sp{flex:1}
+.ck{display:inline-flex;gap:6px;align-items:center;font-size:14px;min-height:36px;padding:0 6px}
+.vdesc{font-size:14px;color:var(--mute);margin:8px 0 0}
+.planwrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:80vh}
+#plan{display:block;width:100%;height:auto}
+#plan .eq{cursor:grab;touch-action:none}
+.info{margin-top:10px}
+.info .card{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:0}
+.info h3{font-size:20px}
+.sum{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:14px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:13px;color:var(--mute);font-weight:600}
+.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+tfoot td{font-weight:700;border-bottom:0}
+.scroll{overflow-x:auto}
+.note{font-size:13px;color:var(--mute);margin:6px 0 0}
+.dbt input,.dbt select{min-height:36px;padding:4px 6px;font-size:15px}
+.dbt td{padding:4px}.dbt .num{width:68px}.dbt .nm{min-width:190px}.dbt .tx{min-width:110px}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#15181c;color:#fff;padding:12px 16px;border-radius:10px;max-width:min(600px,92vw);font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.toast.on{opacity:1}
+.gsw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#printHead{display:none}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mute)}.stack td:empty{display:none}.cmd{grid-template-columns:minmax(0,1fr)}.mic{grid-row:auto;justify-self:start}}
+@media print{.top,.cmd,.side,.ptools,.ltabs,.noprint,.info,.toast{display:none!important}.view{padding:0}.plan{display:block}.planwrap{max-height:none;border:0;overflow:visible}body{background:#fff;color:#000}.card{border:0;padding:0}#printHead{display:block;margin-bottom:8px}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="mark">LF</span><div><b>LifeFit Gym Planner</b><small>LifeFit Complete Gym Solutions</small></div></div>
+  <nav class="tabs" aria-label="Views">
+    <button data-view="vPlan" class="on">Planner</button>
+    <button data-view="vDb">Equipment database</button>
+    <button data-view="vGuide">Zone guide</button>
+  </nav>
+  <div class="hact">
+    <button class="hb" id="bSave">Save project</button>
+    <label class="hb" style="display:inline-flex;align-items:center;cursor:pointer">Open project<input type="file" id="fOpen" accept=".json,application/json" hidden></label>
+    <button class="hb" id="bPrint">Print</button>
+  </div>
+</header>
+<section class="cmd" aria-label="Voice and typed commands">
+  <button id="mic" class="mic" aria-label="Start voice command" title="Speak a command">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+  </button>
+  <form id="cmdForm" autocomplete="off">
+    <input id="cmdIn" aria-label="Command" placeholder="Say or type: commercial gym 3000 sq ft, cardio 700, strength 650, yoga 300, add 6 treadmills">
+    <button class="run" type="submit">Run</button>
+  </form>
+  <div class="heard" id="heard"><span>Tap the mic and speak, or type a brief. Separate zones with commas or “and”.</span> <button class="lnk" type="button" id="bHelp">What can I say?</button></div>
+  <div class="help" id="help" hidden>
+    <b>Examples</b> (speak naturally; numbers can be digits or words)
+    <ul>
+      <li><code>Client name is Mehta Residence</code></li>
+      <li><code>Commercial gym 4000 square feet</code> · <code>home gym 600 sq ft</code></li>
+      <li><code>Room 50 by 80</code> (feet)</li>
+      <li><code>Cardio 800, strength 1000, yoga 400 and boot camp 600</code></li>
+      <li><code>Cardio 25 percent</code> · <code>spin 40 square metres</code></li>
+      <li><code>Add 6 treadmills and 4 upright bikes</code></li>
+      <li><code>Remove the spin zone</code> · <code>clear all zones</code></li>
+      <li><code>Suggest zones</code> (a mix for the floor and gym type)</li>
+      <li><code>Zone called sauna 120</code> (custom zone)</li>
+      <li><code>Entrance on the left</code> · <code>aisle 5 feet</code></li>
+      <li><code>Spacious</code> / <code>standard</code> / <code>compact spacing</code></li>
+      <li><code>Show layout 2</code> · <code>export equipment list</code> · <code>print</code></li>
+    </ul>
+    <p class="note" style="color:#aab1ba">Voice uses your browser's speech recognition (Chrome, Edge, Safari). If the microphone is blocked, use your device's dictation key in the command box (Windows <code>Win + H</code>, Mac <code>Fn Fn</code>, the mic on a phone keyboard) and press Run.</p>
+    <div class="row" style="margin-top:8px">
+      <label class="ck">Voice language <select id="lang" style="min-height:36px;width:auto;background:#0c0e11;color:#fff;border-color:#3a414b"><option value="en-IN">English (India)</option><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-AE">English (UAE)</option></select></label>
+      <label class="ck"><input type="checkbox" id="speak"> Speak confirmations</label>
+    </div>
+  </div>
+</section>
+
+<main id="vPlan" class="view plan">
+  <aside class="side">
+    <section class="card">
+      <h2>Project</h2>
+      <div class="f">
+        <label class="l w2">Client / project<input id="pClient"></label>
+        <div class="l w2">Gym type<div class="seg" id="pType"><button data-v="home" type="button">Home</button><button data-v="com" type="button">Commercial</button></div></div>
+        <label class="l">Total area (sq ft)<input id="pArea" type="number" min="50" step="10" inputmode="numeric"></label>
+        <label class="l">Entrance wall<select id="pEnt"><option value="bottom">Bottom (front)</option><option value="top">Top (back)</option><option value="left">Left</option><option value="right">Right</option></select></label>
+        <label class="l">Width (ft)<input id="pW" type="number" min="5" step="0.5" inputmode="decimal"></label>
+        <label class="l">Length (ft)<input id="pL" type="number" min="5" step="0.5" inputmode="decimal"></label>
+        <label class="l">Aisle width (ft)<input id="pAisle" type="number" min="0" max="12" step="0.5" inputmode="decimal"></label>
+        <label class="l">Spacing<select id="pSpace"><option value="spacious">Spacious (+30%)</option><option value="standard">Standard</option><option value="compact">Compact (−25%)</option></select></label>
+        <label class="l">Currency<select id="pCur"><option>₹</option><option>$</option><option>€</option><option>£</option><option>AED </option></select></label>
+      </div>
+    </section>
+    <section class="card">
+      <h2>Zones</h2>
+      <div class="alloc" id="alloc" aria-hidden="true"></div>
+      <div class="allocT" id="allocT"></div>
+      <div id="zoneList"></div>
+      <div class="row" style="margin-top:10px">
+        <select id="addSel" aria-label="Zone type to add" style="flex:1"></select>
+        <button class="btn" id="bAdd" type="button">Add zone</button>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="bSuggest" type="button">Suggest a zone mix</button>
+        <button class="btn" id="bClear" type="button">Clear zones</button>
+      </div>
+    </section>
+  </aside>
+
+  <section class="stage">
+    <div id="printHead"><h1 id="phT" style="font-size:30px"></h1><div id="phS"></div></div>
+    <div class="ltabs" id="ltabs" role="tablist" aria-label="Layout options"></div>
+    <p class="vdesc" id="vdesc"></p>
+    <div class="ptools">
+      <button class="btn sm" id="zOut" aria-label="Zoom out">−</button>
+      <button class="btn sm" id="zFit">Fit</button>
+      <button class="btn sm" id="zIn" aria-label="Zoom in">+</button>
+      <label class="ck"><input type="checkbox" id="tClr" checked> Clearances</label>
+      <label class="ck"><input type="checkbox" id="tLbl" checked> Labels</label>
+      <span class="sp"></span>
+      <button class="btn sm" id="ePng">PNG</button>
+      <button class="btn sm" id="eSvg">SVG</button>
+      <button class="btn sm" id="cSvg">Copy SVG</button>
+    </div>
+    <div class="planwrap" id="planWrap"><svg id="plan" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gym floor plan"></svg></div>
+    <p class="note">Drag any machine to fine-tune; tap it to rotate, duplicate or delete. Moves are kept until you change the brief or the database.</p>
+    <div class="info" id="info"></div>
+    <div class="sum">
+      <section class="card">
+        <h2>Zones on this plan</h2>
+        <div id="floorLine" class="allocT"></div>
+        <div class="scroll"><table class="stack" id="zTable"></table></div>
+      </section>
+      <section class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:6px"><h2 style="margin:0">Equipment list</h2>
+          <div class="row noprint"><button class="btn sm" id="cBom">Copy for Excel</button><button class="btn sm" id="eCsv">Download CSV</button></div></div>
+        <div class="scroll"><table class="stack" id="bTable"></table></div>
+        <p class="note" id="bNote"></p>
+      </section>
+    </div>
+  </section>
+</main>
+
+<main id="vDb" class="view" hidden>
+  <section class="card">
+    <h2>Equipment database</h2>
+    <p class="note" id="dbSrc" style="font-size:15px"></p>
+    <div class="row" style="margin-top:10px">
+      <label class="btn acc" style="cursor:pointer">Import spreadsheet (.xlsx, .csv, .json)<input type="file" id="fImp" accept=".csv,.tsv,.txt,.xlsx,.xls,.json" hidden></label>
+      <button class="btn" id="bPaste" type="button">Paste rows from Excel / Sheets</button>
+      <label class="ck">Sizes in <select id="unit" style="width:auto;min-height:36px"><option value="auto">Auto (from headers, else ft)</option><option value="ft">feet</option><option value="in">inches</option><option value="cm">cm</option><option value="mm">mm</option><option value="m">metres</option></select></label>
+      <label class="ck"><input type="checkbox" id="merge"> Merge with current list</label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <input id="dbUrl" placeholder="Google Sheet link, or a CSV / JSON URL on your website" style="flex:1 1 320px">
+      <button class="btn" id="bUrl" type="button">Load from link</button>
+    </div>
+    <div id="pasteBox" hidden style="margin-top:10px">
+      <textarea id="pasteTa" placeholder="Copy rows (with the header row) from Excel or Google Sheets and paste here"></textarea>
+      <div class="row" style="margin-top:6px"><button class="btn acc" id="bPasteGo" type="button">Use these rows</button></div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn sm" id="bTpl" type="button">Copy blank template</button>
+      <button class="btn sm" id="bExpCat" type="button">Download catalogue CSV</button>
+      <button class="btn sm" id="bCopyCat" type="button">Copy catalogue</button>
+      <button class="btn sm" id="bAddEq" type="button">Add item</button>
+      <button class="btn sm" id="bReset" type="button">Reset to sample</button>
+    </div>
+    <p class="note">Columns it reads (any order, extra columns ignored): <b>name</b>, short, brand, model, sku, <b>zone</b> (cardio, strength, resistance…; several with “|”), use (home / commercial / both), <b>width</b>, <b>length</b>, side / front / rear clearance, price, max per zone, mix weight, keywords, url. Width is side-to-side, length is front-to-back.</p>
+  </section>
+  <section class="card">
+    <div class="row" style="margin-bottom:8px">
+      <input id="dbQ" placeholder="Search equipment" style="flex:1 1 220px">
+      <select id="dbZ" style="flex:0 1 220px" aria-label="Filter by zone"></select>
+      <span class="note" id="dbCount"></span>
+    </div>
+    <div class="scroll"><table class="dbt" id="dbTable"></table></div>
+  </section>
+</main>
+
+<main id="vGuide" class="view" hidden>
+  <section class="card">
+    <h2>Zone guide</h2>
+    <p style="max-width:75ch">The ranges below are planning rules of thumb, and they include each machine's clearance. The tool's layouts use the clearances stored with each item in your database. Treadmills default to the ASTM F2115 minimum of 0.5 m (about 1.6 ft) at each side and 2 m (about 6.5 ft) behind. Keep main aisles at least 3 ft wide (36 in, the accessible-route minimum), and use 4–5 ft in commercial gyms. Your own standards and local codes come first.</p>
+  </section>
+  <section class="card"><div class="scroll"><table class="stack" id="gTable"></table></div></section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="application/json" id="seed">
+[["c1","Commercial treadmill","TM","cardio","com",3,7,1.6,1,6.5,450000,0,3,"treadmill"],
+["c2","Home treadmill","TM","cardio","home",2.8,6.2,1.6,0.5,6.5,120000,0,3,"treadmill"],
+["c3","Elliptical cross-trainer","EL","cardio","both",2.5,6.8,1.6,1,1.6,300000,0,2,"elliptical cross trainer crosstrainer"],
+["c4","Upright bike","UB","cardio","both",2,4,1.6,1,1,150000,0,2,"upright bike"],
+["c5","Recumbent bike","RB","cardio","both",2.3,5.5,1.6,1,1,180000,0,1,"recumbent bike"],
+["c6","Stair climber","SC","cardio","com",3.3,5,1.6,1,1.6,550000,2,1,"stair climber stepper stairmaster"],
+["c7","Rowing machine","RW","cardio|crossfit","both",2,8,1.6,1,1,110000,0,1,"rower rowing"],
+["c8","Air bike","AB","cardio|functional|crossfit","both",2.2,4.3,1.6,1,1,90000,0,1,"air bike assault fan"],
+["s1","Power rack","PR","strength|crossfit","both",4.5,5,3,4,1,180000,4,2,"power rack squat"],
+["s2","Olympic flat bench press","BP","strength","com",5.5,6,3,1.5,1.5,120000,2,1,"bench press olympic"],
+["s3","Adjustable bench","AJ","strength|pt","both",2,4.5,2,2,1.5,45000,0,2,"adjustable bench"],
+["s4","Dumbbell rack (10 pairs)","DB","strength","both",7,2.3,1,5,0,85000,3,1,"dumbbell rack"],
+["s5","Smith machine","SM","strength","both",7,4.5,2,3,1,250000,1,1,"smith"],
+["s6","Plate tree","PT","strength|crossfit","both",2.5,2.5,1,2,0.5,25000,2,1,"plate tree"],
+["s7","Preacher curl bench","PC","strength","com",3,4,2,2,1,60000,1,1,"preacher curl"],
+["r1","Chest press","CP","resistance","com",4,5.5,2,2,1,320000,1,1,"chest press"],
+["r2","Lat pulldown","LP","resistance","com",4.5,5.5,2,2,1,320000,1,1,"lat pulldown"],
+["r3","Seated row","SR","resistance","com",4,6,2,2,1,320000,1,1,"seated row"],
+["r4","Shoulder press","SP","resistance","com",4,5.5,2,2,1,320000,1,1,"shoulder press"],
+["r5","Leg extension","LE","resistance","com",4,5,2,2,1,300000,1,1,"leg extension"],
+["r6","Seated leg curl","LC","resistance","com",4,5.5,2,2,1,300000,1,1,"leg curl"],
+["r7","Pec fly / rear delt","PF","resistance","com",4,5,2,2,1,330000,1,1,"pec fly rear delt"],
+["r8","Selectorized leg press","SL","resistance","com",4.5,7,2,2,1,380000,1,1,"selectorized leg press"],
+["r9","Hip abductor / adductor","HA","resistance","com",3,6,2,2,1,300000,1,1,"abductor adductor"],
+["r10","Cable crossover","CC","resistance|functional","com",13,3.5,2,6,0.5,450000,1,1,"cable crossover"],
+["r11","Multi-station home gym","MG","resistance|strength","home",6,6,2,2,1,180000,1,1,"multi station multigym"],
+["p1","45° leg press","LG","plate","com",5.5,7.5,2.5,2,1,280000,1,1,"plate leg press"],
+["p2","Hack squat","HS","plate","com",5,7,2.5,2,1,260000,1,1,"hack squat"],
+["p3","Iso-lateral chest press","IC","plate","com",6,5,2.5,2,1,240000,1,1,"iso lateral chest"],
+["p4","Iso-lateral row","IR","plate","com",6,5,2.5,2,1,240000,1,1,"iso lateral row"],
+["p5","Hip thrust machine","HT","plate|strength","com",5,6,2.5,2,1,250000,1,1,"hip thrust glute"],
+["p6","T-bar row","TB","plate","com",3,6,2.5,2,1,120000,1,1,"t-bar tbar"],
+["f1","Functional trainer","FT","functional|pt|resistance","both",6,3.5,2,6,0.5,350000,2,2,"functional trainer dual pulley"],
+["f2","Turf sled lane (20 ft)","TL","functional|bootcamp","com",5,20,1,2,2,60000,1,1,"turf sled lane"],
+["f3","Kettlebell rack","KB","functional|bootcamp|crossfit","both",4,2,1,4,0,60000,1,1,"kettlebell"],
+["f4","Plyo box set","PB","functional|bootcamp|crossfit","both",3,2.5,2,3,1,25000,2,1,"plyo box"],
+["f5","Battle rope station","BR","functional|bootcamp","both",4,16,2,1,1,15000,1,1,"battle rope"],
+["f6","Suspension trainer anchor","ST","functional|pt","both",4,8,1,0,0,12000,4,1,"suspension trx"],
+["f7","Medicine ball rack","MB","functional|bootcamp","both",3,1.5,1,3,0,30000,1,1,"medicine ball"],
+["b1","HIIT station (mat, bench, bells)","HI","bootcamp|group","com",4,6.5,1.5,1,1,20000,0,3,"hiit station"],
+["x1","Lifting platform 8×8","PL","crossfit|strength","com",8,8,3,2,1,90000,0,2,"lifting platform"],
+["x2","Rig (4 stations)","RG","crossfit|functional","com",16,6,2,6,0.5,400000,1,1,"rig"],
+["x3","Bumper plate rack","BU","crossfit","com",4,2,1,3,0,40000,1,1,"bumper"],
+["y1","Yoga mat position","YM","yoga|stretch","both",2.2,6,1.3,0.6,0.6,2500,0,4,"yoga mat"],
+["y2","Pilates reformer","RF","yoga","com",2.6,8,2.5,1.5,1,350000,0,1,"reformer pilates"],
+["y3","Props shelf","PS","yoga|group","both",6,1.5,1,2.5,0,20000,1,1,"props shelf"],
+["g1","Instructor stage","IS","group|spin","com",8,5,1,1,0,60000,1,1,"instructor stage podium"],
+["g2","Group exercise spot","GX","group","com",4,4,2.5,1.5,1.5,6000,0,4,"group spot step"],
+["sp1","Indoor cycle","CY","spin","both",2,4,1.6,1,1.2,120000,0,4,"indoor cycle spin"],
+["k1","Free-standing heavy bag","HB","combat|functional","both",2,2,4,3,3,40000,0,2,"heavy bag punching"],
+["k2","Boxing ring 16×16","BX","combat","com",16,16,2,3,2,450000,1,1,"boxing ring"],
+["t1","Stretch mat station","SX","stretch","both",3,6,1.5,1,1,8000,0,3,"stretch mat stretching"],
+["t2","Stretch cage","SG","stretch|functional","com",4,5,2,2,1,90000,1,1,"stretch cage"],
+["t3","Massage chair","MC","stretch","both",3,5,1.5,2,0.5,250000,2,1,"massage chair"],
+["t4","Foam roller rack","FR","stretch","both",3,1.5,1,2.5,0,15000,1,1,"foam roller"],
+["pt1","Trainer desk","TD","pt","com",4,2.5,1,3,0,30000,1,1,"trainer desk"],
+["kd1","Soft-play mat area","SP","kids","com",6,6,2,2,2,30000,0,2,"soft play"],
+["rc1","Reception desk","RD","reception","com",10,3,1,3,2.5,150000,1,1,"reception desk counter"],
+["rc2","Lounge sofa","SO","reception","com",7,3,2,3,0.5,60000,2,1,"sofa lounge"],
+["l1","Locker bank (6 doors)","LK","lockers","com",6,1.5,0.5,4,0,50000,0,3,"locker"],
+["l2","Changing bench","CB","lockers","com",6,1.5,1,2,2,12000,0,1,"changing bench"],
+["w1","WC cubicle","WC","washroom","com",3,5,0.3,3,0,45000,0,2,"toilet wc"],
+["w2","Shower cubicle","SH","washroom","com",3,3,0.3,3,0,40000,0,2,"shower"],
+["w3","Vanity (2 basins)","VA","washroom","com",6,2,0.5,3,0,40000,1,1,"vanity basin"],
+["st1","Shelving unit","SU","storage","both",6,2,0.5,3,0,15000,0,1,"shelf shelving"]]
+</script>
+
+<script>
+{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const r1=v=>Math.round(v*10)/10;
+const fmt=n=>Math.round(n||0).toLocaleString('en-IN');
+const inFrame=(()=>{try{return window.self!==window.top}catch(e){return true}})();
+const LS='lifefit-planner-v1';
+const store={get(){try{return JSON.parse(localStorage.getItem(LS)||'null')}catch(e){return null}},set(v){try{localStorage.setItem(LS,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- Zone types ---------- */
+const ZT=[
+{id:'reception',n:'Reception & lounge',c:'#495057',p:0,g:'svc',h:0,m:4,rule:'150–400 sq ft',d:'Check-in desk, waiting, retail.',pl:'At the entrance, with sight lines across the floor.',syn:['reception','front desk','lounge','lobby','waiting area']},
+{id:'cardio',n:'Cardio',c:'#e8441c',p:1,g:'mach',h:30,m:22,rule:'40–50 sq ft per machine',d:'Treadmills, ellipticals, bikes, rowers, climbers.',pl:'Near the entrance or windows; treadmills face a wall or screens, clear run-off behind.',syn:['cardio','cardiovascular']},
+{id:'resistance',n:'Resistance machines',c:'#7b3fc4',p:3,g:'mach',h:0,m:16,rule:'50–60 sq ft per machine',d:'Pin-loaded (selectorized) machines.',pl:'Laid out as a circuit: legs, push, pull, core.',syn:['resistance','selectorized','selectorised','pin loaded','pin-loaded','machine zone']},
+{id:'plate',n:'Plate-loaded',c:'#0f8b8d',p:4,g:'mach',h:0,m:8,rule:'60–80 sq ft per machine',d:'Plate-loaded machines.',pl:'Beside free weights so plates are shared; plate storage within reach.',syn:['plate loaded','plate-loaded','plate load']},
+{id:'strength',n:'Strength – free weights',c:'#2b59c3',p:5,g:'free',h:40,m:16,rule:'50–100 sq ft per station',d:'Racks, benches, dumbbells, Smith machine.',pl:'Away from studios and reception (noise); rubber floor, mirror wall.',syn:['strength','free weight','free-weight','freeweight','weights','dumbbell area']},
+{id:'functional',n:'Functional training',c:'#c98a00',p:5,g:'free',h:20,m:10,rule:'50+ sq ft per user; turf lane 4–6 ft wide',d:'Turf lane, cable stations, kettlebells, ropes, boxes.',pl:'Open floor next to strength, with a clear lane end to end.',syn:['functional','turf','sled']},
+{id:'bootcamp',n:'Boot camp / HIIT',c:'#d6336c',p:6,g:'free',h:0,m:0,rule:'45–60 sq ft per participant',d:'Circuit and HIIT classes run as stations.',pl:'Open floor with wall storage; can share space with functional.',syn:['boot camp','bootcamp','boot-camp','hiit','circuit']},
+{id:'crossfit',n:'CrossFit / rig & platforms',c:'#5c6b73',p:6,g:'free',h:0,m:0,rule:'8×8 ft platform + 3 ft around',d:'Rig, lifting platforms, bumpers, rowers.',pl:'Ground floor or a solid slab for drops.',syn:['crossfit','cross fit','cross-fit','lifting platform','olympic lifting','weightlifting','rig area']},
+{id:'pt',n:'Personal training',c:'#845ef7',p:6,g:'free',h:0,m:0,rule:'80–120 sq ft per trainer and client',d:'Trainer-led sessions.',pl:'Semi-private corner near strength.',syn:['personal training','pt zone','pt area','trainer zone']},
+{id:'combat',n:'Boxing / combat',c:'#a61e4d',p:7,g:'studio',h:0,m:0,rule:'~60 sq ft per heavy bag',d:'Heavy bags, ring, mats.',pl:'Away from quiet zones; ceiling-hung or free-standing bags.',syn:['boxing','combat','mma','kickboxing','martial art']},
+{id:'group',n:'Group exercise studio',c:'#f08c00',p:8,g:'studio',h:0,m:10,rule:'40–50 sq ft per participant',d:'Aerobics, Zumba, dance, step.',pl:'Enclosed room; sprung floor, mirrors, sound isolation.',syn:['group exercise','group class','group studio','aerobics','zumba','dance','group']},
+{id:'spin',n:'Indoor cycling studio',c:'#1c7ed6',p:8,g:'studio',h:0,m:0,rule:'20–25 sq ft per bike',d:'Indoor cycling classes.',pl:'Enclosed room with extra cooling and sound.',syn:['spin','spinning','indoor cycling','cycling studio','cycling']},
+{id:'yoga',n:'Yoga & Pilates',c:'#2f9e77',p:8,g:'studio',h:0,m:0,rule:'20–25 sq ft per mat; 40+ per reformer',d:'Yoga, Pilates, meditation.',pl:'The quietest corner, away from free weights.',syn:['yoga','pilates','meditation','reformer studio']},
+{id:'stretch',n:'Stretching & recovery',c:'#66a80f',p:7,g:'free',h:10,m:4,rule:'25–40 sq ft per user',d:'Mats, rollers, stretch cage, massage chairs.',pl:'Between the training floor and changing rooms.',syn:['stretching','stretch','recovery','mobility','cool down','cool-down']},
+{id:'kids',n:'Kids zone',c:'#e64980',p:2,g:'studio',h:0,m:0,rule:'~35 sq ft per child',d:'Supervised kids activity.',pl:'Visible from reception, separated from equipment.',syn:['kids','children','junior','kid']},
+{id:'lockers',n:'Lockers & changing',c:'#868e96',p:2,g:'svc',h:0,m:6,rule:'~6–8% of floor in clubs',d:'Lockers, benches, changing.',pl:'Between the entrance and the training floor.',syn:['locker','changing','change room','dressing']},
+{id:'washroom',n:'Washrooms & showers',c:'#4dabf7',p:2,g:'svc',h:0,m:4,rule:'by peak users and local code',d:'WCs, showers, vanities.',pl:'Next to lockers on a wet-services wall.',syn:['washroom','toilet','shower','restroom','bathroom']},
+{id:'storage',n:'Storage',c:'#adb5bd',p:9,g:'svc',h:0,m:0,rule:'2–4% of floor',d:'Equipment and cleaning storage.',pl:'Back of house, near studios.',syn:['storage','store room','storeroom']}];
+const CUSTOM={id:'custom',n:'Custom zone',c:'#343a40',p:6,g:'free',h:0,m:0,rule:'',d:'',pl:'',syn:[]};
+const ZM=Object.fromEntries(ZT.map(z=>[z.id,z]));
+const zt=id=>ZM[id]||CUSTOM;
+const SYN=ZT.flatMap(z=>z.syn.map(s=>({s,id:z.id,re:new RegExp('\\b'+s.replace(/[-]/g,'[- ]?')+'(?:s|es)?\\b','g')}))).sort((a,b)=>b.s.length-a.s.length);
+const SP={spacious:1.3,standard:1,compact:0.75};
+const VAR=[
+ {id:'flow',n:'Entrance flow',d:'Reception and cardio by the door; heavier and quieter zones further in.'},
+ {id:'back',n:'Studios at the back',d:'Enclosed studios share the back wall; the open gym floor sits in front.'},
+ {id:'split',n:'Split floor',d:'Machines on one side, free weights and functional on the other, services by the door.'},
+ {id:'grid',n:'Compact blocks',d:'Squarer zones, which usually fit the most equipment per zone.'}];
+
+/* ---------- Catalogue ---------- */
+const SEED=JSON.parse($('#seed').textContent);
+const mk=r=>({id:r[0],name:r[1],short:r[2],brand:'',model:'',sku:'',zones:r[3].split('|'),seg:r[4],w:r[5],l:r[6],cs:r[7],cf:r[8],cr:r[9],price:r[10],max:r[11]||0,mix:r[12]||1,kw:r[13]||'',url:''});
+const SAMPLE=()=>SEED.map(mk);
+const SAMPLE_SRC='Sample catalogue with indicative sizes and placeholder prices. Import your LifeFit list to replace it.';
+
+let uidN=1;const uid=()=>'z'+Date.now().toString(36)+(uidN++);
+const DEF=()=>({client:'Sample client · Andheri studio',type:'com',W:50,L:60,entrance:'bottom',aisle:4,spacing:'standard',cur:'₹',lang:'en-IN',speak:false,
+ zones:[['reception',120],['cardio',700],['resistance',600],['strength',650],['functional',350],['yoga',300],['lockers',180]].map(([t,a])=>({uid:uid(),t,name:'',area:a,auto:true,picks:{}}))});
+const saved=store.get();
+let S=Object.assign(DEF(),saved?.S||{});
+let CAT=Array.isArray(saved?.CAT)&&saved.CAT.length?saved.CAT:SAMPLE();
+let SRC=saved?.SRC||SAMPLE_SRC;
+let LAY=[],cur=0,zoom=1,showClr=true,showLbl=true,sel=null,EQ={},ORD={};
+const openZ=new Set();
+const area=()=>S.W*S.L;
+const save=()=>store.set({S,CAT,SRC});
+
+/* ---------- Toast ---------- */
+let tt;const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),4200)};
+
+/* ---------- Layout geometry ---------- */
+const sumA=a=>a.reduce((s,i)=>s+i.a,0);
+function strip(items,x,y,w,h,out,fromBottom){
+  if(!items.length||w<=0||h<=0)return;
+  const k=w*h/sumA(items);const its=items.map(i=>({i,s:i.a*k}));
+  const worst=row=>{const s=row.reduce((a,r)=>a+r.s,0),rh=s/w;return Math.max(...row.map(r=>{const rw=r.s/rh;return Math.max(rw/rh,rh/rw)}))};
+  const rows=[];let c=[];
+  for(const it of its){if(!c.length||worst([...c,it])<=worst(c))c.push(it);else{rows.push(c);c=[it]}}
+  if(c.length)rows.push(c);
+  const dep=r=>r.reduce((a,q)=>a+q.s,0)/w,minD=Math.min(9,h*0.3);
+  for(let guard=0;guard<50&&rows.length>1;guard++){const i=rows.findIndex(r=>dep(r)<minD);if(i<0)break;const j=i>0?i-1:1;rows[Math.min(i,j)]=[...rows[Math.min(i,j)],...rows[Math.max(i,j)]];rows.splice(Math.max(i,j),1)}
+  let yy=fromBottom?y+h:y;
+  for(const row of rows){const rh=row.reduce((a,r)=>a+r.s,0)/w;if(fromBottom)yy-=rh;let xx=x;
+    for(const r of row){const rw=r.s/rh;out.push({...r.i,x:xx,y:yy,w:rw,h:rh});xx+=rw}
+    if(!fromBottom)yy+=rh}
+}
+function squarify(items,x,y,w,h,out){
+  const k=w*h/sumA(items);let rest=items.map(i=>({i,s:i.a*k})).sort((a,b)=>b.s-a.s);
+  while(rest.length){
+    const side=Math.min(w,h);
+    const wr=row=>{const s=row.reduce((a,q)=>a+q.s,0);return Math.max(...row.map(q=>Math.max(side*side*q.s/(s*s),s*s/(side*side*q.s))))};
+    let row=[rest[0]],j=1;
+    while(j<rest.length&&wr([...row,rest[j]])<=wr(row)){row.push(rest[j]);j++}
+    rest=rest.slice(j);const s=row.reduce((a,q)=>a+q.s,0);
+    if(w>=h){const rw=s/h;let yy=y;for(const r of row){const rh=r.s/rw;out.push({...r.i,x,y:yy,w:rw,h:rh});yy+=rh}x+=rw;w-=rw}
+    else{const rh=s/w;let xx=x;for(const r of row){const rw=r.s/rh;out.push({...r.i,x:xx,y,w:rw,h:rh});xx+=rw}y+=rh;h-=rh}
+  }
+}
+function mapR(o,W,L){
+  const u=o.x,v=o.y,uw=o.w,vh=o.h;
+  switch(S.entrance){
+    case 'top':return{x:W-u-uw,y:L-v-vh,w:uw,h:vh};
+    case 'left':return{x:W-(v+vh),y:u,w:vh,h:uw};
+    case 'right':return{x:v,y:L-u-uw,w:vh,h:uw};
+    default:return{x:u,y:v,w:uw,h:vh};
+  }
+}
+function inset(r,g,W,L){
+  const e=0.01,h=g/2;
+  const l=r.x<e?0:h,t=r.y<e?0:h,rr=r.x+r.w>W-e?0:h,b=r.y+r.h>L-e?0:h;
+  return{x:r.x+l,y:r.y+t,w:Math.max(0,r.w-l-rr),h:Math.max(0,r.h-t-b)};
+}
+function pack(R,seq){
+  seq=[...seq].sort((a,b)=>(ORD[a.id]??999)-(ORD[b.id]??999));
+  const a=packDir(R,seq,R.w>=R.h);if(!a.fail.length)return a;
+  const b=packDir(R,seq,R.w<R.h);return b.fail.length<a.fail.length?b:a;
+}
+function packDir(R,seq,H){
+  const k=SP[S.spacing]||1;
+  const U=H?R.w:R.h,V=H?R.h:R.w;
+  let u=0,v=0,rh=0;const P=[],F=[];
+  for(const e of seq){
+    let o={fw:+e.w,fl:+e.l,cs:e.cs*k,cf:e.cf*k,cr:e.cr*k,rot:false};
+    if(o.fw+o.cs>U+1e-6||o.fl+o.cf+o.cr>V+1e-6){
+      const alt={fw:+e.l,fl:+e.w,cs:(+e.cf+ +e.cr)*k,cf:e.cs*k/2,cr:e.cs*k/2,rot:true};
+      if(alt.fw+alt.cs<=U+1e-6&&alt.fl+alt.cf+alt.cr<=V+1e-6)o=alt;else{F.push(e);continue}
+    }
+    const CU=o.fw+o.cs,CV=o.fl+o.cf+o.cr;
+    let nu=u,nv=v,nrh=rh;
+    if(nu+CU>U+1e-6){nv+=nrh;nu=0;nrh=0}
+    if(nv+CV>V+1e-6){F.push(e);continue}
+    P.push({e,o,u:nu,v:nv,CU,CV});u=nu+CU;v=nv;rh=Math.max(nrh,CV);
+  }
+  const usedU=P.reduce((m,p)=>Math.max(m,p.u+p.CU),0),usedV=P.length?v+rh:0;
+  const oU=(U-usedU)/2,oV=(V-usedV)/2;
+  const items=P.map(p=>{
+    const cu=p.u+oU,cv=p.v+oV,fu=cu+p.o.cs/2,fv=cv+p.o.cf;
+    if(H)return{id:p.e.id,x:R.x+fu,y:R.y+fv,w:p.o.fw,h:p.o.fl,front:'t',dx:cu-fu,dy:cv-fv,cw:p.CU,ch:p.CV};
+    return{id:p.e.id,x:R.x+fv,y:R.y+fu,w:p.o.fl,h:p.o.fw,front:'l',dx:cv-fv,dy:cu-fu,cw:p.CV,ch:p.CU};
+  });
+  return{items,fail:F};
+}
+function pool(z){return CAT.filter(e=>(e.zones||[]).includes(z.t)&&(e.seg==='both'||e.seg===S.type)&&+e.w>0&&+e.l>0)}
+function rr(pl,n,fixed){
+  const cnt={};fixed.forEach(e=>cnt[e.id]=(cnt[e.id]||0)+1);const out=[];
+  for(let i=0;i<n;i++){
+    let best=null,bv=1e9;
+    for(const e of pl){const c=cnt[e.id]||0;if(e.max&&c>=e.max)continue;const val=(c+1)/(+e.mix||1);if(val<bv){bv=val;best=e}}
+    if(!best)break;cnt[best.id]=(cnt[best.id]||0)+1;out.push(best);
+  }
+  return out;
+}
+function fillZone(z,r,inr){
+  const fz=clamp(Math.min(inr.w,inr.h)*0.07,0.75,1.35),lab=fz*2.35;
+  const R={x:inr.x+0.3,y:inr.y+lab,w:inr.w-0.6,h:inr.h-lab-0.3};
+  const fixed=[];for(const[id,q]of Object.entries(z.picks||{})){const e=EQ[id];if(e)for(let i=0;i<q;i++)fixed.push(e)}
+  const pl=pool(z);let best;
+  if(R.w<=1||R.h<=1)best={items:[],fail:fixed};
+  else{
+    best=pack(R,fixed);
+    if(z.auto&&pl.length&&!best.fail.length){
+      const seq=[...fixed],cnt={};fixed.forEach(e=>cnt[e.id]=(cnt[e.id]||0)+1);
+      let act=pl.filter(e=>!(e.max&&(cnt[e.id]||0)>=e.max));
+      for(let it=0;it<600&&act.length;it++){
+        act.sort((a,b)=>((cnt[a.id]||0)+1)/(+a.mix||1)-((cnt[b.id]||0)+1)/(+b.mix||1)||(ORD[a.id]-ORD[b.id]));
+        const e=act[0],t=pack(R,[...seq,e]);
+        if(t.fail.length){act.shift();continue}
+        seq.push(e);best=t;cnt[e.id]=(cnt[e.id]||0)+1;
+        if(e.max&&cnt[e.id]>=e.max)act.shift();
+      }
+    }
+  }
+  return{z,T:zt(z.t),r,inr,fz,items:best.items,fail:best.fail};
+}
+function build(v){
+  const W=S.W,L=S.L,A=W*L,horiz=S.entrance==='bottom'||S.entrance==='top';
+  const cw=horiz?W:L,cd=horiz?L:W;
+  const zs=S.zones.filter(z=>z.area>0),sum=zs.reduce((a,z)=>a+ +z.area,0);
+  const g=+S.aisle||0,infl=a=>a+g*Math.sqrt(a)*1.6+g*g*0.5;
+  let items=zs.map(z=>({z,a:infl(+z.area),p:zt(z.t).p,g:zt(z.t).g}));
+  const isum=sumA(items);if(isum>A&&sum<=A){const k=(A-sum)/(isum-sum);items.forEach(i=>i.a=+i.z.area+(i.a-i.z.area)*k)}
+  const free=A-sumA(items);if(free>A*0.01)items.push({free:true,a:free,p:10,g:'free'});
+  const res={v,zones:[],frees:[],over:sum>A,sum,A};
+  if(!items.length||A<=0)return res;
+  const out=[],byP=(a,b)=>a.p-b.p,tot=sumA(items);
+  if(v.id==='flow')strip([...items].sort(byP),0,0,cw,cd,out,true);
+  else if(v.id==='back'){
+    let back=items.filter(i=>i.g==='studio');
+    if(!back.length||back.length===items.length)back=items.filter(i=>i.p>=6&&!i.free);
+    const fr=items.find(i=>i.free);if(fr&&back.length&&cd*sumA(back)/tot<12)back.push(fr);
+    let front=items.filter(i=>!back.includes(i));
+    if(!back.length||!front.length)strip([...items].sort(byP),0,0,cw,cd,out,true);
+    else{let d=cd*sumA(back)/tot;
+      if(d>=10){strip([...back].sort(byP),0,0,cw,d,out,false);strip(front.sort(byP),0,d,cw,cd-d,out,true)}
+      else{/* studios as a back-corner block, gym floor wraps around it */
+        const D=Math.min(cd*0.45,Math.max(14,d)),bw=Math.min(cw*0.7,cw*cd*sumA(back)/tot/D);
+        squarify(back,cw-bw,0,bw,D,out);
+        const sideA=(cw-bw)*D,fs=front.sort(byP).reverse(),side=[];let acc=0;
+        while(fs.length>1&&acc+fs[0].a*(cw*cd/tot)*0.5<sideA){const it=fs.shift();acc+=it.a*(cw*cd/tot);side.push(it)}
+        if(side.length&&cw-bw>6)strip(side,0,0,cw-bw,D,out,false);else{fs.push(...side);side.length=0}
+        strip(fs.sort(byP),0,D,cw,cd-D,out,true);
+        if(!side.length){/* corner left empty: mark as open floor */out.push({free:true,a:0,x:0,y:0,w:cw-bw,h:D})}
+      }}
+  }else if(v.id==='split'){
+    const svc=items.filter(i=>i.g==='svc');let rest=items.filter(i=>i.g!=='svc'),y0=cd;
+    if(svc.length&&rest.length){const d=cd*sumA(svc)/tot;strip(svc.sort(byP),0,cd-d,cw,d,out,true);y0=cd-d}else rest=items;
+    let a=rest.filter(i=>i.g==='mach'),b=rest.filter(i=>i.g!=='mach');
+    if(!a.length||!b.length){const s=[...rest].sort(byP);a=s.filter((_,i)=>i%2===0);b=s.filter((_,i)=>i%2)}
+    if(!b.length)strip(a,0,0,cw,y0,out,true);
+    else{const lw=cw*sumA(a)/sumA(rest);strip(a.sort(byP),0,0,lw,y0,out,true);strip(b.sort(byP),lw,0,cw-lw,y0,out,true)}
+  }else squarify(items,0,0,cw,cd,out);
+  for(const o of out){const r=mapR(o,W,L),inr=inset(r,S.aisle,W,L);if(o.free)res.frees.push(inr);else res.zones.push(fillZone(o.z,r,inr))}
+  return res;
+}
+function regen(){
+  ORD=Object.fromEntries(CAT.map((e,i)=>[e.id,i]));EQ=Object.fromEntries(CAT.map(e=>[e.id,e]));
+  LAY=VAR.map(build);sel=null;cur=clamp(cur,0,VAR.length-1);
+  renderStage();save();
+}
+let rt;const schedule=()=>{clearTimeout(rt);rt=setTimeout(regen,140)};
+
+/* ---------- Plan SVG ---------- */
+const zName=z=>z.t==='custom'?(z.name||'Custom zone'):zt(z.t).n;
+function overlaps(L){
+  const all=[];L.zones.forEach((zr,zi)=>zr.items.forEach((it,ii)=>all.push({it,k:zi+'-'+ii})));
+  const bad=new Set();
+  for(let i=0;i<all.length;i++){const a=all[i].it;
+    if(a.x<-0.01||a.y<-0.01||a.x+a.w>S.W+0.01||a.y+a.h>S.L+0.01)bad.add(all[i].k);
+    for(let j=i+1;j<all.length;j++){const b=all[j].it;
+      if(a.x<b.x+b.w-0.05&&b.x<a.x+a.w-0.05&&a.y<b.y+b.h-0.05&&b.y<a.y+a.h-0.05){bad.add(all[i].k);bad.add(all[j].k)}}}
+  return bad;
+}
+function planSVG(){
+  const Lr=LAY[cur],W=S.W,L=S.L,M=Math.max(4,Math.max(W,L)*0.07),fs=Math.max(1,M*0.26);
+  const ink='#1d2025';let s='';
+  s+=`<defs><pattern id="hatch" width="1.2" height="1.2" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1.2" stroke="#d5d7da" stroke-width=".25"/></pattern></defs>`;
+  s+=`<rect x="${-M}" y="${-M}" width="${W+2*M}" height="${L+2*M}" fill="#fff"/>`;
+  for(let x=5;x<W;x+=5)s+=`<line x1="${x}" y1="0" x2="${x}" y2="${L}" stroke="#eceef0" stroke-width=".06"/>`;
+  for(let y=5;y<L;y+=5)s+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#eceef0" stroke-width=".06"/>`;
+  if(Lr){
+    for(const f of Lr.frees){if(f.w<0.5||f.h<0.5)continue;s+=`<rect x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" fill="url(#hatch)" stroke="#c9ccd0" stroke-width=".08"/>`;
+      const ff=clamp(Math.min(f.w,f.h)*0.09,0.7,1.6);if(showLbl&&f.w>ff*7&&f.h>ff*2)s+=`<text x="${f.x+f.w/2}" y="${f.y+f.h/2+ff*0.35}" font-size="${ff}" text-anchor="middle" fill="#868e96" font-family="Barlow,Arial,sans-serif">Open floor</text>`}
+    const bad=overlaps(Lr);
+    Lr.zones.forEach((zr,zi)=>{
+      const{inr:i,T,fz}=zr,c=T.c;if(i.w<0.3||i.h<0.3)return;
+      s+=`<rect x="${i.x}" y="${i.y}" width="${i.w}" height="${i.h}" fill="${c}" fill-opacity=".12" stroke="${c}" stroke-width=".14" rx=".3"/>`;
+      if(showLbl){const nm=zName(zr.z),mx=Math.max(3,Math.floor((i.w-1)/(fz*0.5)));const t=nm.length>mx?nm.slice(0,mx-1)+'…':nm;
+        s+=`<text x="${i.x+0.5}" y="${i.y+fz*1.15}" font-size="${fz}" font-weight="700" fill="${c}" font-family="'Barlow Condensed',Arial Narrow,Arial,sans-serif">${esc(t)}</text>`;
+        const sub=`${fmt(i.w*i.h)} sq ft · ${zr.items.length} pcs`,ms=Math.floor((i.w-1)/(fz*0.42));
+        if(ms>6)s+=`<text x="${i.x+0.5}" y="${i.y+fz*2.15}" font-size="${fz*0.72}" fill="#495057" font-family="Barlow,Arial,sans-serif">${esc(sub.length>ms?sub.slice(0,ms):sub)}</text>`}
+      zr.items.forEach((it,ii)=>{const e=EQ[it.id]||{short:'?',name:'?'},k=zi+'-'+ii,isSel=sel&&sel.z===zi&&sel.i===ii,isBad=bad.has(k);
+        if(showClr)s+=`<rect x="${it.x+it.dx}" y="${it.y+it.dy}" width="${it.cw}" height="${it.ch}" fill="${c}" fill-opacity=".06" stroke="${c}" stroke-opacity=".45" stroke-width=".05" stroke-dasharray=".3 .25" pointer-events="none"/>`;
+        s+=`<g class="eq" data-z="${zi}" data-i="${ii}" transform="translate(${it.x} ${it.y})"><title>${esc(e.name)} · ${r1(it.w)} × ${r1(it.h)} ft</title>`;
+        s+=`<rect width="${it.w}" height="${it.h}" rx=".15" fill="${isBad?'#ffe3e3':'#fff'}" stroke="${isSel?'#e8441c':isBad?'#d6001c':ink}" stroke-width="${isSel?.22:.09}"/>`;
+        s+=it.front==='t'?`<line x1=".1" y1=".08" x2="${it.w-.1}" y2=".08" stroke="${c}" stroke-width=".26"/>`:it.front==='b'?`<line x1=".1" y1="${it.h-.08}" x2="${it.w-.1}" y2="${it.h-.08}" stroke="${c}" stroke-width=".26"/>`:it.front==='r'?`<line x1="${it.w-.08}" y1=".1" x2="${it.w-.08}" y2="${it.h-.1}" stroke="${c}" stroke-width=".26"/>`:`<line x1=".08" y1=".1" x2=".08" y2="${it.h-.1}" stroke="${c}" stroke-width=".26"/>`;
+        const lf=Math.min(0.95,Math.min(it.w,it.h)*0.42);
+        if(showLbl&&lf>=0.35)s+=`<text x="${it.w/2}" y="${it.h/2+lf*0.35}" font-size="${lf}" text-anchor="middle" font-weight="600" fill="${ink}" font-family="Barlow,Arial,sans-serif" pointer-events="none">${esc(e.short||e.name.slice(0,2))}</text>`;
+        s+=`</g>`});
+    });
+  }
+  s+=`<rect x="0" y="0" width="${W}" height="${L}" fill="none" stroke="${ink}" stroke-width=".4"/>`;
+  const dw=Math.min(6,(S.entrance==='left'||S.entrance==='right'?L:W)/4);
+  const tx=`font-size="${fs}" font-family="Barlow,Arial,sans-serif" fill="${ink}"`;
+  if(S.entrance==='bottom')s+=`<line x1="${W/2-dw/2}" y1="${L}" x2="${W/2+dw/2}" y2="${L}" stroke="#fff" stroke-width=".7"/><text x="${W/2}" y="${L+fs*1.3}" text-anchor="middle" font-weight="700" ${tx}>▲ Entrance</text>`;
+  if(S.entrance==='top')s+=`<line x1="${W/2-dw/2}" y1="0" x2="${W/2+dw/2}" y2="0" stroke="#fff" stroke-width=".7"/><text x="${W/2}" y="${-fs*0.5}" text-anchor="middle" font-weight="700" ${tx}>▼ Entrance</text>`;
+  if(S.entrance==='left')s+=`<line x1="0" y1="${L/2-dw/2}" x2="0" y2="${L/2+dw/2}" stroke="#fff" stroke-width=".7"/><text transform="translate(${-fs*0.55} ${L/2}) rotate(-90)" text-anchor="middle" font-weight="700" ${tx}>Entrance ▼</text>`;
+  if(S.entrance==='right')s+=`<line x1="${W}" y1="${L/2-dw/2}" x2="${W}" y2="${L/2+dw/2}" stroke="#fff" stroke-width=".7"/><text transform="translate(${W+fs*0.55} ${L/2}) rotate(90)" text-anchor="middle" font-weight="700" ${tx}>Entrance ▼</text>`;
+  const wy=S.entrance==='top'?L+fs*1.3:-fs*0.5;
+  s+=`<text x="${S.entrance==='top'?W/2:W*0.72}" y="${wy}" text-anchor="middle" ${tx}>${r1(W)} ft</text>`;
+  const lx=S.entrance==='right'?-fs*0.55:W+fs*0.55,rot=S.entrance==='right'?-90:90;
+  s+=`<text transform="translate(${lx} ${L/2}) rotate(${rot})" text-anchor="middle" ${tx}>${r1(L)} ft</text>`;
+  const sb=W>=40?10:5,sy=S.entrance==='top'?L+M*0.55:-M*0.6;
+  s+=`<g><rect x="0" y="${sy}" width="${sb/2}" height="${fs*0.3}" fill="${ink}"/><rect x="${sb/2}" y="${sy}" width="${sb/2}" height="${fs*0.3}" fill="#fff" stroke="${ink}" stroke-width=".08"/><text x="${sb+fs*0.3}" y="${sy+fs*0.35}" font-size="${fs*0.75}" font-family="Barlow,Arial,sans-serif" fill="${ink}">${sb} ft</text></g>`;
+  const title=`${S.client||'Gym plan'} · ${VAR[cur].n} · ${r1(W)} × ${r1(L)} ft (${fmt(W*L)} sq ft)`;
+  const ty=S.entrance==='bottom'?L+M*0.82:S.entrance==='top'?-M*0.35:L+M*0.6;
+  s+=`<text x="${W}" y="${ty}" text-anchor="end" font-size="${fs*0.7}" font-family="Barlow,Arial,sans-serif" fill="#6c737c">${esc(title)}</text>`;
+  return{vb:`${-M} ${-M} ${W+2*M} ${L+2*M}`,s,M};
+}
+function renderPlan(){
+  const p=planSVG(),svg=$('#plan');svg.setAttribute('viewBox',p.vb);svg.innerHTML=p.s;svg.style.width=(zoom*100)+'%';
+}
+
+/* ---------- Stage: tabs, summary, BOM ---------- */
+const money=v=>S.cur+(Math.round(v||0)).toLocaleString(S.cur==='₹'?'en-IN':'en-US');
+function bom(Lr){
+  const m={};if(!Lr)return[];
+  Lr.zones.forEach(zr=>zr.items.forEach(it=>{const e=EQ[it.id];if(!e)return;const r=m[it.id]||(m[it.id]={e,q:0,z:new Set()});r.q++;r.z.add(zName(zr.z))}));
+  return Object.values(m).sort((a,b)=>(ORD[a.e.id]??0)-(ORD[b.e.id]??0));
+}
+function renderStage(){
+  $('#ltabs').innerHTML=LAY.map((L,i)=>{const b=bom(L),q=b.reduce((a,r)=>a+r.q,0),v=b.reduce((a,r)=>a+r.q*(+r.e.price||0),0);
+    return`<button class="lt${i===cur?' on':''}" role="tab" aria-selected="${i===cur}" data-i="${i}"><b>${i+1}. ${esc(VAR[i].n)}</b><small>${q} pieces${v?' · '+money(v):''}</small></button>`}).join('');
+  $('#vdesc').textContent=VAR[cur].d;
+  renderPlan();renderSummary();renderInfo();
+  $('#phT').textContent=S.client||'Gym plan';
+  $('#phS').textContent=`${S.type==='home'?'Home':'Commercial'} gym · ${fmt(area())} sq ft (${r1(S.W)} × ${r1(S.L)} ft) · Option ${cur+1}: ${VAR[cur].n} · ${new Date().toLocaleDateString('en-IN')} · LifeFit Complete Gym Solutions`;
+}
+function renderSummary(){
+  const Lr=LAY[cur];if(!Lr)return;
+  const zsum=S.zones.reduce((a,z)=>a+(+z.area||0),0);
+  $('#floorLine').innerHTML=`Room <b>${fmt(Lr.A)} sq ft</b> · zones planned <b>${fmt(zsum)}</b> · open floor <b>${fmt(Math.max(0,Lr.A-zsum))}</b> · aisles ${r1(S.aisle)} ft between zones`+(Lr.over?`<br><span class="warn">Zones add up to ${fmt(zsum-Lr.A)} sq ft more than the room, so they are scaled down to fit.</span>`:'');
+  $('#zTable').innerHTML=`<thead><tr><th>Zone</th><th class="n">Planned</th><th class="n">On plan</th><th class="n">Pieces</th><th>Note</th></tr></thead><tbody>`+
+  Lr.zones.map(zr=>{const a=zr.inr.w*zr.inr.h,pl=pool(zr.z).length;let note='';
+    if(zr.fail.length)note=`<span class="warn">${zr.fail.length} chosen item${zr.fail.length>1?'s':''} didn't fit</span>`;
+    else if(!pl&&!Object.keys(zr.z.picks||{}).length)note='No database items for this zone yet';
+    else if(a<zr.z.area*0.8)note='Aisles take part of this zone';
+    return`<tr><td><span class="gsw" style="background:${zr.T.c}"></span>${esc(zName(zr.z))}</td><td class="n">${fmt(zr.z.area)} sq ft</td><td class="n">${fmt(a)} sq ft · ${r1(zr.inr.w)}×${r1(zr.inr.h)}</td><td class="n">${zr.items.length}</td><td>${note}</td></tr>`}).join('')+`</tbody>`;
+  const b=bom(Lr);let tq=0,tv=0;
+  $('#bTable').innerHTML=`<thead><tr><th>Equipment</th><th>Zone</th><th class="n">Qty</th><th class="n">Unit price</th><th class="n">Total</th></tr></thead><tbody>`+
+   (b.length?b.map(r=>{const p=+r.e.price||0;tq+=r.q;tv+=r.q*p;const bm=[r.e.brand,r.e.model].filter(Boolean).join(' ');
+   return`<tr><td><b>${esc(r.e.name)}</b>${bm?`<br><small>${esc(bm)}</small>`:''}</td><td>${esc([...r.z].join(', '))}</td><td class="n">${r.q}</td><td class="n">${p?money(p):'—'}</td><td class="n">${p?money(r.q*p):'—'}</td></tr>`}).join(''):`<tr><td colspan="5">No equipment placed yet. Add zones, or import your equipment database.</td></tr>`)+
+   `</tbody><tfoot><tr><td>Total</td><td></td><td class="n">${tq}</td><td></td><td class="n">${tv?money(tv):'—'}</td></tr></tfoot>`;
+  $('#bNote').textContent=SRC===SAMPLE_SRC?'Prices and sizes are sample placeholders until you import your own catalogue.':`Prices from: ${SRC}`;
+}
+function renderInfo(){
+  const box=$('#info');if(!sel||!LAY[cur]?.zones[sel.z]?.items[sel.i]){box.innerHTML='';return}
+  const zr=LAY[cur].zones[sel.z],it=zr.items[sel.i],e=EQ[it.id]||{};
+  box.innerHTML=`<div class="card"><div style="flex:1 1 240px"><h3>${esc(e.name)}</h3><div class="note">${esc(zName(zr.z))} · footprint ${r1(it.w)} × ${r1(it.h)} ft · with clearance ${r1(it.cw)} × ${r1(it.ch)} ft${+e.price?' · '+money(e.price):''}${e.brand||e.model?' · '+esc([e.brand,e.model].filter(Boolean).join(' ')):''}</div></div>
+  <div class="row"><button class="btn sm" data-a="rot">Rotate</button><button class="btn sm" data-a="dup">Duplicate</button><button class="btn sm" data-a="del">Delete</button><button class="btn sm" data-a="x">Close</button></div></div>`;
+}
+$('#info').addEventListener('click',e=>{const a=e.target.closest('[data-a]')?.dataset.a;if(!a||!sel)return;const zr=LAY[cur].zones[sel.z],it=zr.items[sel.i];
+  if(a==='rot'){const cx=it.x+it.w/2,cy=it.y+it.h/2;[it.w,it.h]=[it.h,it.w];it.x=cx-it.w/2;it.y=cy-it.h/2;
+    const odx=it.dx,ody=it.dy,ocw=it.cw,och=it.ch;it.cw=och;it.ch=ocw;it.dx=ody;it.dy=odx;it.front={t:'r',r:'b',b:'l',l:'t'}[it.front]||'t'}
+  if(a==='dup'){zr.items.push({...it,x:it.x+1,y:it.y+1});sel={z:sel.z,i:zr.items.length-1}}
+  if(a==='del'){zr.items.splice(sel.i,1);sel=null}
+  if(a==='x')sel=null;
+  renderPlan();renderSummary();renderInfo();
+});
+
+/* drag */
+let drag=null;
+const svgPt=ev=>{const svg=$('#plan'),p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())};
+$('#plan').addEventListener('pointerdown',ev=>{const g=ev.target.closest('.eq');if(!g)return;ev.preventDefault();
+  const zi=+g.dataset.z,ii=+g.dataset.i,it=LAY[cur].zones[zi].items[ii],p=svgPt(ev);drag={zi,ii,sx:p.x,sy:p.y,ox:it.x,oy:it.y,moved:false}});
+window.addEventListener('pointermove',ev=>{if(!drag)return;const p=svgPt(ev),it=LAY[cur].zones[drag.zi].items[drag.ii];
+  const nx=Math.round((drag.ox+p.x-drag.sx)*4)/4,ny=Math.round((drag.oy+p.y-drag.sy)*4)/4;
+  if(Math.abs(p.x-drag.sx)+Math.abs(p.y-drag.sy)>0.3)drag.moved=true;
+  if(drag.moved&&(nx!==it.x||ny!==it.y)){it.x=nx;it.y=ny;sel={z:drag.zi,i:drag.ii};requestAnimationFrame(renderPlan)}});
+window.addEventListener('pointerup',()=>{if(!drag)return;sel={z:drag.zi,i:drag.ii};drag=null;renderPlan();renderInfo()});
+
+/* ---------- Left panel ---------- */
+function renderProject(){
+  $('#pClient').value=S.client;$('#pArea').value=Math.round(area());$('#pW').value=S.W;$('#pL').value=S.L;
+  $('#pEnt').value=S.entrance;$('#pAisle').value=S.aisle;$('#pSpace').value=S.spacing;$('#pCur').value=S.cur;
+  $$('#pType button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.type));
+  $('#lang').value=S.lang;$('#speak').checked=!!S.speak;
+}
+function setArea(a){a=Math.max(25,+a||0);const r=(S.W/S.L)||1;let W=Math.sqrt(a*r);W=Math.max(5,Math.round(W*2)/2);S.W=W;S.L=Math.max(5,Math.round(a/W*2)/2)}
+function renderAlloc(){
+  const A=area(),sum=S.zones.reduce((a,z)=>a+(+z.area||0),0);
+  $('#alloc').innerHTML=S.zones.map(z=>`<i style="width:${clamp(z.area/Math.max(A,sum)*100,0,100)}%;background:${zt(z.t).c}"></i>`).join('');
+  $('#allocT').innerHTML=sum>A?`<span class="warn">${fmt(sum)} of ${fmt(A)} sq ft: ${fmt(sum-A)} over the room</span>`:`<b>${fmt(sum)}</b> of ${fmt(A)} sq ft in zones · ${fmt(A-sum)} open floor`;
+  $$('#zoneList .zone').forEach(r=>{const z=S.zones.find(q=>q.uid===r.dataset.u);if(z)r.querySelector('.pct').textContent=Math.round(z.area/A*100)+'%'});
+}
+function renderZones(){
+  const A=area();
+  $('#zoneList').innerHTML=S.zones.length?S.zones.map(z=>{const T=zt(z.t),pl=pool(z),nf=Object.values(z.picks||{}).reduce((a,b)=>a+b,0);
+   const ids=new Set(pl.map(e=>e.id));Object.keys(z.picks||{}).forEach(id=>{if(EQ[id]&&!ids.has(id))pl.push(EQ[id])});
+   return`<div class="zone" data-u="${z.uid}"><span class="sw" style="background:${T.c}"></span>
+   <select class="zt" aria-label="Zone type">${ZT.map(t=>`<option value="${t.id}"${t.id===z.t?' selected':''}>${esc(t.n)}</option>`).join('')}<option value="custom"${z.t==='custom'?' selected':''}>Custom…</option></select>
+   <input class="za" type="number" min="0" step="10" value="${Math.round(z.area)}" aria-label="Zone area in sq ft">
+   <span class="pct">${Math.round(z.area/A*100)}%</span>
+   <button class="zx" type="button" aria-label="Remove zone">×</button>
+   ${z.t==='custom'?`<input class="zname" placeholder="Zone name, e.g. Sauna" value="${esc(z.name)}">`:''}
+   <details${openZ.has(z.uid)?' open':''}><summary>Equipment · ${z.auto?'auto-fill':'fixed list'}${nf?` · ${nf} fixed`:''}</summary>
+   <label class="ck"><input type="checkbox" class="zauto"${z.auto?' checked':''}> Auto-fill the remaining space</label>
+   ${pl.length?`<div class="picks">${pl.map(e=>`<label class="pk"><span>${esc(e.name)}</span><input class="pq" type="number" min="0" data-id="${esc(e.id)}" value="${z.picks?.[e.id]||''}" placeholder="auto" aria-label="${esc(e.name)} quantity"></label>`).join('')}</div>`:`<p class="rule">No ${S.type==='home'?'home':'commercial'} items in the database for this zone.</p>`}
+   ${T.rule?`<p class="rule">Rule of thumb: ${esc(T.rule)}.</p>`:''}</details></div>`}).join(''):`<p class="note">No zones yet. Add one below, say “suggest zones”, or speak a brief like “cardio 600, strength 800”.</p>`;
+  const have=new Set(S.zones.map(z=>z.t));
+  $('#addSel').innerHTML=ZT.filter(t=>!have.has(t.id)).map(t=>`<option value="${t.id}">${esc(t.n)}</option>`).join('')+`<option value="custom">Custom zone…</option>`;
+  renderAlloc();
+}
+function suggestSize(t){const T=zt(t),pct=(S.type==='home'?T.h:T.m)||8;return Math.max(60,Math.round(area()*pct/100/10)*10)}
+function addZone(t,a,name){const z={uid:uid(),t,name:name||'',area:Math.round(a??suggestSize(t)),auto:true,picks:{}};S.zones.push(z);return z}
+function suggest(){
+  const A=area();let list=ZT.filter(t=>(S.type==='home'?t.h:t.m)>0).map(t=>[t.id,S.type==='home'?t.h:t.m]);
+  if(S.type==='com'&&A<2500)list=list.filter(([id])=>!['group','plate','washroom'].includes(id));
+  if(S.type==='com'&&A<1200)list=list.filter(([id])=>!['lockers'].includes(id));
+  if(S.type==='home'&&A<250)list=list.filter(([id])=>['cardio','strength'].includes(id));
+  const tot=list.reduce((a,[,p])=>a+p,0);
+  S.zones=list.map(([t,p])=>({uid:uid(),t,name:'',area:Math.round(A*0.9*p/tot/10)*10,auto:true,picks:{}}));
+}
+$('#pClient').addEventListener('input',e=>{S.client=e.target.value;schedule()});
+$('#pType').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;S.type=b.dataset.v;renderProject();renderZones();schedule()});
+$('#pArea').addEventListener('input',e=>{if(+e.target.value<25)return;setArea(e.target.value);$('#pW').value=S.W;$('#pL').value=S.L;renderAlloc();schedule()});
+$('#pArea').addEventListener('change',()=>renderProject());
+for(const[id,k]of[['#pW','W'],['#pL','L']])$(id).addEventListener('input',e=>{const v=+e.target.value;if(v>=5){S[k]=v;$('#pArea').value=Math.round(area());renderAlloc();schedule()}});
+$('#pEnt').addEventListener('change',e=>{S.entrance=e.target.value;schedule()});
+$('#pAisle').addEventListener('input',e=>{S.aisle=clamp(+e.target.value||0,0,12);schedule()});
+$('#pSpace').addEventListener('change',e=>{S.spacing=e.target.value;schedule()});
+$('#pCur').addEventListener('change',e=>{S.cur=e.target.value;regen()});
+$('#lang').addEventListener('change',e=>{S.lang=e.target.value;save()});
+$('#speak').addEventListener('change',e=>{S.speak=e.target.checked;save()});
+const zl=$('#zoneList');
+zl.addEventListener('input',e=>{const row=e.target.closest('.zone');if(!row)return;const z=S.zones.find(q=>q.uid===row.dataset.u);if(!z)return;
+  if(e.target.classList.contains('za')){z.area=Math.max(0,+e.target.value||0);renderAlloc();schedule()}
+  if(e.target.classList.contains('zname')){z.name=e.target.value;schedule()}
+  if(e.target.classList.contains('pq')){const n=Math.max(0,Math.round(+e.target.value||0));z.picks=z.picks||{};if(n)z.picks[e.target.dataset.id]=n;else delete z.picks[e.target.dataset.id];schedule()}});
+zl.addEventListener('change',e=>{const row=e.target.closest('.zone');if(!row)return;const z=S.zones.find(q=>q.uid===row.dataset.u);if(!z)return;
+  if(e.target.classList.contains('zt')){z.t=e.target.value;z.picks={};renderZones();schedule()}
+  if(e.target.classList.contains('zauto')){z.auto=e.target.checked;renderZones();schedule()}});
+zl.addEventListener('click',e=>{if(!e.target.classList.contains('zx'))return;const u=e.target.closest('.zone').dataset.u;S.zones=S.zones.filter(z=>z.uid!==u);renderZones();schedule()});
+zl.addEventListener('toggle',e=>{const row=e.target.closest('.zone');if(row)e.target.open?openZ.add(row.dataset.u):openZ.delete(row.dataset.u)},true);
+$('#bAdd').addEventListener('click',()=>{const t=$('#addSel').value;addZone(t,t==='custom'?150:undefined,t==='custom'?'':undefined);renderZones();schedule()});
+$('#bSuggest').addEventListener('click',()=>{suggest();renderZones();regen();toast('Suggested a '+(S.type==='home'?'home':'commercial')+' zone mix using 90% of the floor. Adjust any zone size.')});
+$('#bClear').addEventListener('click',()=>{S.zones=[];renderZones();regen()});
+
+/* stage controls */
+$('#ltabs').addEventListener('click',e=>{const b=e.target.closest('.lt');if(!b)return;cur=+b.dataset.i;sel=null;renderStage()});
+$('#zIn').addEventListener('click',()=>{zoom=clamp(zoom*1.25,0.5,4);renderPlan()});
+$('#zOut').addEventListener('click',()=>{zoom=clamp(zoom/1.25,0.5,4);renderPlan()});
+$('#zFit').addEventListener('click',()=>{zoom=1;renderPlan()});
+$('#tClr').addEventListener('change',e=>{showClr=e.target.checked;renderPlan()});
+$('#tLbl').addEventListener('change',e=>{showLbl=e.target.checked;renderPlan()});
+
+/* ---------- Export ---------- */
+const fname=ext=>((S.client||'gym-plan').replace(/[^\w-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')||'gym-plan')+`-option-${cur+1}.${ext}`;
+let dlNS;const getDl=()=>dlNS!==undefined?Promise.resolve(dlNS):(window.claude&&typeof window.claude.use==='function'?window.claude.use('downloads').then(n=>dlNS=n||null,()=>dlNS=null):Promise.resolve(dlNS=null));
+async function dl(name,blob){
+  const ns=inFrame?await getDl():null;
+  if(ns){try{await ns.save({filename:name,data:blob});toast('Saved '+name)}catch(e){if(e&&e.code!=='declined')toast('Could not save here ('+(e.code||'unavailable')+'). Use Copy, or the GitHub-hosted version.')}return}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}catch(e){}
+  if(inFrame)toast('Downloading '+name+'. If nothing arrives, this viewer blocks downloads: use Copy, or open the GitHub-hosted version.')}
+async function copy(text,what){try{await navigator.clipboard.writeText(text);toast(what+' copied to clipboard.')}catch(e){
+  const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(_){}ta.remove();toast(ok?what+' copied.':'Copy was blocked by the browser.')}}
+const svgText=()=>{const p=planSVG();return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${p.vb}">${p.s}</svg>`};
+$('#eSvg').addEventListener('click',()=>dl(fname('svg'),new Blob([svgText()],{type:'image/svg+xml'})));
+$('#cSvg').addEventListener('click',()=>copy(svgText(),'Plan SVG'));
+$('#ePng').addEventListener('click',()=>{const p=planSVG(),[, , vw,vh]=p.vb.split(' ').map(Number),k=clamp(4000/Math.max(vw,vh),8,40);
+  const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=Math.round(vw*k);c.height=Math.round(vh*k);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+    c.toBlob(b=>b?dl(fname('png'),b):toast('Could not make the image here.'),'image/png')};
+  img.onerror=()=>toast('Could not make the image here; use SVG instead.');
+  img.src=URL.createObjectURL(new Blob([`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${p.vb}" width="${Math.round(vw*k)}" height="${Math.round(vh*k)}">${p.s}</svg>`],{type:'image/svg+xml'}))});
+const bomRows=()=>{const b=bom(LAY[cur]);return[['Equipment','Brand','Model','SKU','Zone','Qty','Unit price','Total'],...b.map(r=>[r.e.name,r.e.brand||'',r.e.model||'',r.e.sku||'',[...r.z].join(', '),r.q,+r.e.price||0,r.q*(+r.e.price||0)])]};
+const csvCell=v=>{v=String(v??'');return/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+const head=()=>[[`Client: ${S.client}`],[`Layout: Option ${cur+1} – ${VAR[cur].n}`],[`Area: ${fmt(area())} sq ft (${S.W} x ${S.L} ft)`],[]];
+$('#eCsv').addEventListener('click',()=>dl(fname('csv'),new Blob(['\ufeff'+[...head(),...bomRows()].map(r=>r.map(csvCell).join(',')).join('\n')],{type:'text/csv'})));
+$('#cBom').addEventListener('click',()=>copy([...head(),...bomRows()].map(r=>r.join('\t')).join('\n'),'Equipment list'));
+$('#bSave').addEventListener('click',()=>dl(fname('json').replace(/-option-\d+/,''),new Blob([JSON.stringify({app:'lifefit-gym-planner',v:1,S},null,1)],{type:'application/json'})));
+$('#fOpen').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j.S)throw 0;S=Object.assign(DEF(),j.S);renderProject();renderZones();regen();toast('Opened '+f.name)}catch(_){toast('That file is not a saved planner project.')}e.target.value=''});
+function doPrint(){try{window.print()}catch(e){}if(inFrame)toast('If the print dialog did not open, this viewer blocks printing. Use PNG, or the GitHub-hosted version.')}
+$('#bPrint').addEventListener('click',doPrint);
+
+/* ---------- Tabs ---------- */
+function show(v){$$('.view').forEach(m=>m.hidden=m.id!==v);$$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.view===v));if(v==='vDb')renderDb();if(v==='vGuide')renderGuide()}
+$$('.tabs button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.view)));
+
+/* ---------- Equipment database ---------- */
+function renderDb(){
+  $('#dbSrc').textContent='Source: '+SRC;
+  const zSel=$('#dbZ'),zv=zSel.value||'';
+  zSel.innerHTML=`<option value="">All zones</option>`+ZT.map(t=>`<option value="${t.id}"${t.id===zv?' selected':''}>${esc(t.n)}</option>`).join('')+`<option value="__none"${zv==='__none'?' selected':''}>No zone set</option>`;
+  const q=$('#dbQ').value.trim().toLowerCase();
+  const rows=CAT.filter(e=>(!q||(e.name+' '+e.brand+' '+e.model+' '+e.sku).toLowerCase().includes(q))&&(!zv||(zv==='__none'?!(e.zones||[]).length:(e.zones||[]).includes(zv))));
+  $('#dbCount').textContent=`${rows.length} of ${CAT.length} items`;
+  const num=(e,f,st='0.1')=>`<input class="num" type="number" step="${st}" min="0" data-id="${esc(e.id)}" data-f="${f}" value="${e[f]??''}">`;
+  $('#dbTable').innerHTML=`<thead><tr><th>Name</th><th>Label</th><th>Brand</th><th>Model / SKU</th><th>Zone</th><th>Use</th><th class="n">W ft</th><th class="n">L ft</th><th class="n">Side</th><th class="n">Front</th><th class="n">Rear</th><th class="n">Price</th><th class="n">Max</th><th class="n">Mix</th><th></th></tr></thead><tbody>`+
+  rows.map(e=>`<tr><td><input class="nm" data-id="${esc(e.id)}" data-f="name" value="${esc(e.name)}"></td>
+  <td><input style="width:56px" data-id="${esc(e.id)}" data-f="short" value="${esc(e.short)}" maxlength="4"></td>
+  <td><input class="tx" data-id="${esc(e.id)}" data-f="brand" value="${esc(e.brand)}"></td>
+  <td><input class="tx" data-id="${esc(e.id)}" data-f="model" value="${esc([e.model,e.sku].filter(Boolean).join(' / '))}"></td>
+  <td><select data-id="${esc(e.id)}" data-f="zone" style="min-width:150px">${(e.zones||[]).length?'':'<option value="">Choose…</option>'}${ZT.map(t=>`<option value="${t.id}"${(e.zones||[])[0]===t.id?' selected':''}>${esc(t.n)}</option>`).join('')}</select>${(e.zones||[]).length>1?`<small class="note"> +${e.zones.length-1}</small>`:''}</td>
+  <td><select data-id="${esc(e.id)}" data-f="seg" style="min-width:100px">${[['both','Both'],['com','Commercial'],['home','Home']].map(([v,t])=>`<option value="${v}"${e.seg===v?' selected':''}>${t}</option>`).join('')}</select></td>
+  <td>${num(e,'w')}</td><td>${num(e,'l')}</td><td>${num(e,'cs')}</td><td>${num(e,'cf')}</td><td>${num(e,'cr')}</td>
+  <td><input class="num" style="width:100px" type="number" min="0" step="100" data-id="${esc(e.id)}" data-f="price" value="${e.price||''}"></td>
+  <td>${num(e,'max','1')}</td><td>${num(e,'mix','1')}</td>
+  <td><button class="zx" data-del="${esc(e.id)}" aria-label="Delete ${esc(e.name)}">×</button></td></tr>`).join('')+`</tbody>`;
+}
+$('#dbQ').addEventListener('input',renderDb);$('#dbZ').addEventListener('change',renderDb);
+const dbChange=e=>{const t=e.target,id=t.dataset.id,f=t.dataset.f;if(!id||!f)return;const it=CAT.find(x=>x.id===id);if(!it)return;
+  if(f==='zone'){it.zones=[t.value,...(it.zones||[]).slice(1).filter(z=>z!==t.value)]}
+  else if(f==='model'){const[m,s]=t.value.split('/').map(x=>x.trim());it.model=m||'';it.sku=s||''}
+  else if(['w','l','cs','cf','cr','price','max','mix'].includes(f))it[f]=Math.max(0,+t.value||0);
+  else it[f]=t.value;
+  if(SRC===SAMPLE_SRC)SRC='Sample catalogue, edited';schedule()};
+$('#dbTable').addEventListener('change',dbChange);
+$('#dbTable').addEventListener('input',e=>{if(e.target.tagName==='INPUT')dbChange(e)});
+$('#dbTable').addEventListener('click',e=>{const id=e.target.dataset?.del;if(!id)return;CAT=CAT.filter(x=>x.id!==id);renderDb();schedule()});
+$('#bAddEq').addEventListener('click',()=>{const id='u'+Date.now().toString(36);CAT.unshift({id,name:'New item',short:'NI',brand:'',model:'',sku:'',zones:[$('#dbZ').value&&$('#dbZ').value!=='__none'?$('#dbZ').value:'strength'],seg:'both',w:3,l:5,cs:2,cf:2,cr:1,price:0,max:0,mix:1,kw:'',url:''});$('#dbQ').value='';renderDb();schedule()});
+$('#bReset').addEventListener('click',()=>{CAT=SAMPLE();SRC=SAMPLE_SRC;renderDb();renderZones();regen();toast('Sample catalogue restored.')});
+$('#bPaste').addEventListener('click',()=>{const b=$('#pasteBox');b.hidden=!b.hidden;if(!b.hidden)$('#pasteTa').focus()});
+$('#bPasteGo').addEventListener('click',()=>{const r=parseDelim($('#pasteTa').value);applyImport(r,'Pasted rows ('+new Date().toLocaleDateString('en-IN')+')');$('#pasteBox').hidden=true});
+
+const COLS=[['name',['name','product name','product','equipment','item','item name','title','description']],['short',['short','label','abbr','code label']],['brand',['brand','make','manufacturer']],['model',['model','model no','model number']],['sku',['sku','code','item code','product code','part no']],
+ ['zone',['zone','zones','category','type','section','area']],['seg',['use','usage','segment','market','application','home/commercial']],['w',['width','w','width ft']],['l',['length','depth','l','length ft','depth ft']],
+ ['cs',['side clearance','clearance side','side clearance ft','clr side','side']],['cf',['front clearance','clearance front','front clearance ft','front']],['cr',['rear clearance','back clearance','clearance rear','rear clearance ft','rear','back']],
+ ['price',['price','mrp','cost','rate','unit price','selling price','price inr']],['max',['max','max qty','max per zone','max_per_zone']],['mix',['mix','mix weight','weight','priority','mix_weight']],['kw',['keywords','keyword','tags','aliases']],['url',['url','link','product url','web link']]];
+const NAMEZ=[[/treadmill|elliptical|cross ?trainer|upright|recumbent|stepper|climber|stair|rower|rowing|arc trainer|ski ?erg|air bike/,'cardio'],[/spin|indoor cycl/,'spin'],[/reformer|pilates|yoga/,'yoga'],[/locker/,'lockers'],[/heavy bag|punch|boxing/,'combat'],[/rig\b|platform|bumper/,'crossfit'],[/turf|sled|battle rope|plyo|medicine ball|suspension|kettlebell|functional/,'functional'],[/leg press|hack|iso.?lateral|plate.?load|t.?bar/,'plate'],[/chest press|lat pull|pulldown|seated row|shoulder press|leg ext|leg curl|pec|fly|abduct|adduct|crunch|calf|glute|selector|crossover/,'resistance'],[/dumbbell|barbell|bench|rack|smith|plate tree/,'strength'],[/mat\b|stretch|roller|massage/,'stretch'],[/bike|cycle/,'cardio']];
+const DEFCLR={cardio:[1.6,1,1.6],spin:[1.6,1,1.2],yoga:[1.3,0.6,0.6],stretch:[1.5,1,1],lockers:[0.5,4,0]};
+function zonesFrom(cat,name){const out=new Set();
+  for(const part of String(cat||'').toLowerCase().split(/[|,;/&+]+/)){const p=part.trim();if(!p)continue;if(ZM[p]){out.add(p);continue}
+    let best=null;for(const s of SYN){s.re.lastIndex=0;const m=s.re.exec(p);if(m&&(!best||m.index<best.i))best={i:m.index,id:s.id}}if(best)out.add(best.id);
+    else{const t=ZT.find(t=>t.n.toLowerCase()===p);if(t)out.add(t.id)}}
+  if(!out.size){const n=String(name||'').toLowerCase()+' '+String(cat||'').toLowerCase();for(const[re,id]of NAMEZ)if(re.test(n)){out.add(id);break}}
+  return[...out]}
+function unitFactor(h,sel){const u=sel!=='auto'?sel:/\bmm\b|\(mm\)|_mm/.test(h)?'mm':/\bcm\b|\(cm\)|_cm/.test(h)?'cm':/\binch|\bin\b|\(in\)|"/.test(h)?'in':/\(m\)|\bmetres?\b|\bmeters?\b|_m\b/.test(h)?'m':'ft';return{ft:1,in:1/12,cm:1/30.48,mm:1/304.8,m:3.28084}[u]}
+function rowsToCat(rows){
+  rows=rows.filter(r=>r&&r.some(c=>String(c??'').trim()!==''));if(rows.length<2)return{items:[],warn:'No data rows found.'};
+  const hdr=rows[0].map(h=>String(h??'').toLowerCase().trim());const key=h=>h.replace(/\(.*?\)|\[.*?\]/g,'').replace(/[_\-.]+/g,' ').replace(/\b(ft|feet|mm|cm|in|inch|inches|m|rs|inr|₹|\$)\b/g,'').replace(/\s+/g,' ').trim();
+  const map={},fac={},unit=$('#unit').value;
+  hdr.forEach((h,i)=>{const k=key(h);for(const[f,al]of COLS){if(map[f]!==undefined)continue;if(al.includes(k)||al.includes(h)){map[f]=i;fac[f]=unitFactor(h,unit);break}}});
+  if(map.name===undefined)return{items:[],warn:'No “name” column found. Use the template headers.'};
+  const items=[];let noDim=0,noZone=0;
+  rows.slice(1).forEach((r,ri)=>{const g=f=>map[f]===undefined?'':String(r[map[f]]??'').trim();const n=f=>{const v=parseFloat(g(f).replace(/[^\d.\-]/g,''));return isFinite(v)?v*(fac[f]||1):NaN};
+    const name=g('name');if(!name)return;const w=n('w'),l=n('l');if(!(w>0&&l>0)){noDim++;return}
+    const zones=zonesFrom(g('zone'),name);if(!zones.length)noZone++;
+    const d=DEFCLR[zones[0]]||[2,2,1],isTM=/treadmill/i.test(name);
+    const segT=g('seg').toLowerCase(),seg=/home|resid/.test(segT)&&/comm|club/.test(segT)?'both':/home|resid/.test(segT)?'home':/comm|club|light/.test(segT)?'com':'both';
+    const pr=parseFloat(g('price').replace(/[^\d.]/g,''));
+    items.push({id:'i'+ri+'_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,16),name,short:(g('short')||name.split(/\s+/).map(x=>x[0]).join('').slice(0,3)).toUpperCase(),brand:g('brand'),model:g('model'),sku:g('sku'),zones,seg,
+      w:r1(w),l:r1(l),cs:isFinite(n('cs'))?r1(n('cs')):d[0],cf:isFinite(n('cf'))?r1(n('cf')):d[1],cr:isFinite(n('cr'))?r1(n('cr')):(isTM?6.5:d[2]),price:isFinite(pr)?pr:0,max:Math.round(parseFloat(g('max'))||0),mix:parseFloat(g('mix'))||1,kw:g('kw'),url:g('url')})});
+  const w=[];if(noDim)w.push(`${noDim} row${noDim>1?'s':''} skipped for missing width/length`);if(noZone)w.push(`${noZone} item${noZone>1?'s have':' has'} no zone yet (filter “No zone set” to fix)`);
+  return{items,warn:w.join('; ')};
+}
+function parseDelim(text){
+  text=String(text||'').replace(/^\ufeff/,'');const first=text.split(/\r?\n/)[0]||'';
+  const d=first.includes('\t')?'\t':(first.split(';').length>first.split(',').length?';':',');
+  const rows=[];let row=[],cell='',q=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){cell+='"';i++}else q=false}else cell+=ch}
+    else if(ch==='"')q=true;else if(ch===d){row.push(cell);cell=''}else if(ch==='\n'){row.push(cell);rows.push(row);row=[];cell=''}else if(ch!=='\r')cell+=ch}
+  if(cell!==''||row.length){row.push(cell);rows.push(row)}
+  return rows;
+}
+function applyImport(rows,src){
+  const{items,warn}=rowsToCat(rows);
+  if(!items.length){toast('Nothing imported. '+warn);return false}
+  if($('#merge').checked){const names=new Set(CAT.map(e=>e.name.toLowerCase()));CAT=[...CAT.filter(e=>!items.some(i=>i.name.toLowerCase()===e.name.toLowerCase())),...items];SRC=SRC+' + '+src}
+  else{CAT=items;SRC=src}
+  S.zones.forEach(z=>{z.picks={}});
+  renderDb();renderZones();regen();toast(`Imported ${items.length} items.`+(warn?' '+warn+'.':''));return true;
+}
+function objsToRows(arr){if(!Array.isArray(arr)){arr=arr?.items||arr?.products||arr?.data||[]}if(!arr.length)return[];const ks=[...new Set(arr.flatMap(o=>Object.keys(o)))];return[ks,...arr.map(o=>ks.map(k=>Array.isArray(o[k])?o[k].join('|'):o[k]))]}
+let xlsxP=null;const loadXLSX=()=>xlsxP||(xlsxP=new Promise((ok,no)=>{if(window.XLSX)return ok(window.XLSX);const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.onload=()=>ok(window.XLSX);s.onerror=()=>{xlsxP=null;no()};document.head.appendChild(s)}));
+$('#fImp').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;const ext=f.name.split('.').pop().toLowerCase();
+  try{if(ext==='xlsx'||ext==='xls'){const X=await loadXLSX();const wb=X.read(await f.arrayBuffer(),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];applyImport(X.utils.sheet_to_json(ws,{header:1,defval:''}),f.name)}
+    else if(ext==='json')applyImport(objsToRows(JSON.parse(await f.text())),f.name);
+    else applyImport(parseDelim(await f.text()),f.name)}
+  catch(err){toast(ext.startsWith('xls')?'Could not read the Excel file. Save it as CSV and import that.':'Could not read that file.')}
+  e.target.value=''});
+async function loadUrl(u,quiet){
+  let url=u.trim();if(!url)return;const g=url.match(/docs\.google\.com\/spreadsheets\/d\/([\w-]+)/);
+  if(g){const gid=(url.match(/[#&?]gid=(\d+)/)||[])[1]||'0';url=`https://docs.google.com/spreadsheets/d/${g[1]}/gviz/tq?tqx=out:csv&gid=${gid}`}
+  try{const r=await fetch(url);if(!r.ok)throw 0;const t=await r.text();let rows;
+    try{rows=objsToRows(JSON.parse(t))}catch(_){rows=parseDelim(t)}
+    return applyImport(rows,g?'Google Sheet':url)}
+  catch(e){if(!quiet)toast(inFrame?'This viewer blocks loading from other websites. Import the file instead, or use the GitHub-hosted version.':'Could not load that link. For a Google Sheet, set sharing to “Anyone with the link”. For your website, the file must allow cross-site access, or put equipment.csv beside this page.');return false}}
+$('#bUrl').addEventListener('click',()=>loadUrl($('#dbUrl').value));
+const TPL_H=['name','short','brand','model','sku','zone','use','width_ft','length_ft','side_clearance_ft','front_clearance_ft','rear_clearance_ft','price','max_per_zone','mix_weight','keywords','url'];
+const catRows=()=>[TPL_H,...CAT.map(e=>[e.name,e.short,e.brand,e.model,e.sku,(e.zones||[]).join('|'),e.seg==='com'?'commercial':e.seg,e.w,e.l,e.cs,e.cf,e.cr,e.price,e.max||'',e.mix,e.kw,e.url])];
+$('#bTpl').addEventListener('click',()=>copy([TPL_H,['Commercial treadmill','TM','','','','cardio','commercial',3,7,1.6,1,6.5,450000,'',3,'treadmill','']].map(r=>r.join('\t')).join('\n'),'Template (paste into Excel or Sheets)'));
+$('#bExpCat').addEventListener('click',()=>dl('equipment.csv',new Blob(['\ufeff'+catRows().map(r=>r.map(csvCell).join(',')).join('\n')],{type:'text/csv'})));
+$('#bCopyCat').addEventListener('click',()=>copy(catRows().map(r=>r.join('\t')).join('\n'),'Catalogue'));
+
+/* ---------- Guide ---------- */
+function renderGuide(){
+  $('#gTable').innerHTML=`<thead><tr><th>Zone</th><th>What goes there</th><th>Space rule of thumb</th><th>Placement</th><th class="n">Share of floor (home / commercial)</th><th>Items in your database</th></tr></thead><tbody>`+
+  ZT.map(t=>`<tr><td><span class="gsw" style="background:${t.c}"></span><b>${esc(t.n)}</b></td><td>${esc(t.d)}</td><td>${esc(t.rule)}</td><td>${esc(t.pl)}</td><td class="n">${t.h?t.h+'%':'—'} / ${t.m?t.m+'%':'—'}</td><td>${CAT.filter(e=>(e.zones||[]).includes(t.id)).length}</td></tr>`).join('')+`</tbody>`;
+}
+
+/* ---------- Command parser (voice + typed) ---------- */
+const NW={zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+const NWK=Object.keys(NW).join('|'),MUL='hundred|thousand|lakh|lakhs';
+const NRE=new RegExp(`\\b(?:\\d+\\s+(?=${MUL}))?(?:${NWK}|${MUL}|\\d+(?=\\s+(?:${MUL})))(?:[\\s-]+(?:and\\s+)?(?:${NWK}|${MUL}))*\\b`,'g');
+function words2num(t){return t.replace(NRE,m=>{let tot=0,c=0;for(const w of m.split(/[\s-]+/)){if(!w||w==='and')continue;if(/^\d+$/.test(w))c+=+w;else if(w==='hundred')c=(c||1)*100;else if(w==='thousand'){tot+=(c||1)*1000;c=0}else if(w.startsWith('lakh')){tot+=(c||1)*1e5;c=0}else c+=NW[w]||0}return' '+(tot+c)+' '})}
+function norm(t){
+  t=' '+t.toLowerCase().replace(/[“”"]/g,' ')+' ';
+  t=t.replace(/(\d),(?=\d)/g,'$1');
+  t=words2num(t);
+  t=t.replace(/(\d+(?:\.\d+)?)\s*k\b/g,(m,n)=>' '+(+n*1000)+' ');
+  t=t.replace(/square\s*(?:feet|foot|ft)|sq\.?\s*(?:feet|foot|ft)\.?|sqft|sq\.? ?ft|\bsft\b|ft2|ft²/g,' sqft ');
+  t=t.replace(/square\s*(?:meters?|metres?)|sq\.?\s*m\b|\bsqm\b|\bm2\b|m²/g,' sqm ');
+  t=t.replace(/per\s*cent|percent|%/g,' pct ');
+  t=t.replace(/(\d)\s*(?:feet|foot|ft|')\s*(?=(?:by|x|into|\*|×|cross)\b|\s*[x×*])/g,'$1 ');
+  t=t.replace(/(\d)\s*[x×*]\s*(\d)/g,'$1 by $2');
+  return t.replace(/\s+/g,' ');
+}
+const SPL=/[.;!?\n]+|,|\band\b|\bthen\b|\balso\b|\bplus\b|\bwith\b|\bincluding\b|\bhaving\b|\bwhere\b/;
+function zoneHits(c){
+  const hits=[];for(const s of SYN){s.re.lastIndex=0;let m;while((m=s.re.exec(c))){const a=m.index,b=a+m[0].length;if(!hits.some(h=>a<h.e&&b>h.s))hits.push({id:s.id,s:a,e:b})}}
+  return hits.sort((a,b)=>a.s-b.s);
+}
+const STOP=new Set(['commercial','home','series','machine','station','premium','with','and','the','set','pro','unit','for','zone']);
+const sing=w=>w.length>3?w.replace(/(ches|shes|xes)$/,m=>m.slice(0,-2)).replace(/ies$/,'y').replace(/s$/,''):w;
+function matchEquip(text,ctx){
+  const words=text.trim().split(/\s+/).slice(0,4).map(sing).filter(Boolean);if(!words.length)return null;
+  let best=null,bs=0;
+  for(const e of CAT){const kws=(e.kw||e.name).toLowerCase().replace(/[^a-z0-9 ]/g,' ').split(/\s+/).filter(k=>k.length>2&&!STOP.has(k));if(!kws.length)continue;
+    let sc=kws.filter(k=>words.some(w=>w===k||(w.length>3&&k.startsWith(w))||(k.length>3&&w.startsWith(k)))).length;if(!sc)continue;
+    if(!words.slice(0,2).some(w=>kws.some(k=>w===k||(w.length>3&&k.startsWith(w))||(k.length>3&&w.startsWith(k)))))continue;
+    sc+=sc/kws.length;if(e.seg==='both'||e.seg===S.type)sc+=0.5;if(ctx&&(e.zones||[]).includes(ctx))sc+=0.7;
+    if(sc>bs){bs=sc;best=e}}
+  return best;
+}
+function upsert(t,a,name){let z=S.zones.find(q=>q.t===t&&(t!=='custom'||q.name.toLowerCase()===(name||'').toLowerCase()));
+  if(z){if(a!=null)z.area=Math.round(a)}else z=addZone(t,a,name);return z}
+let lastZone=null;
+function clause(c,raw,R){
+  const A=area();
+  if(/\b(help|what can i say)\b/.test(c)){$('#help').hidden=false;R.ok.push('Showing examples');return}
+  if(/\bstop listening\b/.test(c)){stopRec();R.ok.push('Stopped listening');return}
+  if(/\b(start over|new project|reset project|reset everything)\b/.test(c)){S=Object.assign(DEF(),{zones:[],client:''});R.ok.push('New project');R.ch=true;return}
+  if(/\b(clear|remove|delete)\b.*\b(all\s+)?zones\b/.test(c)&&/\b(all|clear)\b/.test(c)){S.zones=[];R.ok.push('Cleared zones');R.ch=true;return}
+  if(/\b(suggest|recommend|propose|auto)\b.*\b(zones?|mix|split|allocation)\b/.test(c)||/\bauto ?zone/.test(c)){suggest();R.ok.push('Suggested zone mix');R.ch=true;return}
+  if(/\b(print|pdf)\b/.test(c)){R.after.push(doPrint);R.ok.push('Print');return}
+  if(/\b(export|download|save|send)\b/.test(c)){
+    if(/\b(png|image|picture|drawing|plan)\b/.test(c)){R.after.push(()=>$('#ePng').click());R.ok.push('Exporting PNG');return}
+    if(/\bsvg\b/.test(c)){R.after.push(()=>$('#eSvg').click());R.ok.push('Exporting SVG');return}
+    if(/\b(csv|bom|equipment|list|quote|quotation|excel)\b/.test(c)){R.after.push(()=>$('#eCsv').click());R.ok.push('Exporting equipment list');return}
+    if(/\bproject\b/.test(c)){R.after.push(()=>$('#bSave').click());R.ok.push('Saving project');return}
+  }
+  const ord={first:1,second:2,third:3,fourth:4,last:4};
+  let m=c.match(/\b(?:layout|option|plan|variant|design)\s*(?:number\s*)?(\d)\b/)||c.match(/\b(first|second|third|fourth|last)\s*(?:layout|option|plan|variant|design|one)\b/);
+  if(m){const n=+m[1]||ord[m[1]];if(n>=1&&n<=VAR.length){cur=n-1;R.ok.push('Showing layout '+n);R.view=true;return}}
+  if(/\b(generate|create|make|design|build|draw|prepare|give me|show)\b.*\b(layouts?|plans?|options?|designs?)\b/.test(c)||/^\s*(generate|go|done)\s*$/.test(c)){R.view=true;R.ok.push('Layouts updated');return}
+  if(/\b(home|residential|house|villa|apartment|bungalow)\b/.test(c)&&!/\bhome gym equipment\b/.test(c)){if(S.type!=='home'){S.type='home';R.ch=true}R.ok.push('Home gym')}
+  if(/\b(commercial|club|corporate|hotel|society|franchise|health club|gym chain)\b/.test(c)){if(S.type!=='com'){S.type='com';R.ch=true}R.ok.push('Commercial gym')}
+  if(/\bcurrency\b/.test(c)){const cu=/rupee|inr/.test(c)?'₹':/dollar|usd/.test(c)?'$':/euro/.test(c)?'€':/pound|gbp/.test(c)?'£':/dirham|aed/.test(c)?'AED ':null;if(cu){S.cur=cu;R.ch=true;R.ok.push('Currency '+cu.trim())}return}
+  if(/\b(spacious|roomy|generous|luxury spacing)\b/.test(c)){S.spacing='spacious';R.ch=true;R.ok.push('Spacious spacing')}
+  else if(/\b(compact|tight|dense)\b/.test(c)){S.spacing='compact';R.ch=true;R.ok.push('Compact spacing')}
+  else if(/\b(standard|normal) spacing\b/.test(c)){S.spacing='standard';R.ch=true;R.ok.push('Standard spacing')}
+  m=c.match(/\b(?:aisles?|walkways?|corridors?|passages?)\b\D{0,20}(\d+(?:\.\d+)?)/);
+  if(m){S.aisle=clamp(+m[1],0,12);R.ch=true;R.ok.push(`Aisle ${S.aisle} ft`);return}
+  if(/\b(entrance|entry|door|main door|doorway)\b/.test(c)){const w=(c.match(/\b(left|right|top|bottom|front|back|rear|north|south|east|west)\b/)||[])[1];
+    if(w){S.entrance={left:'left',west:'left',right:'right',east:'right',top:'top',back:'top',rear:'top',north:'top'}[w]||'bottom';R.ch=true;R.ok.push('Entrance '+S.entrance)}return}
+  m=c.match(/(\d+(?:\.\d+)?)\s*(?:by|into|cross)\s*(\d+(?:\.\d+)?)/);
+  if(m){S.W=clamp(+m[1],5,1000);S.L=clamp(+m[2],5,1000);R.ch=true;R.ok.push(`Room ${S.W} × ${S.L} ft = ${fmt(area())} sq ft`);c=c.replace(m[0],' ')}
+  m=raw.match(/\b(?:client|customer|project)(?:'s)?(?:\s+name)?\s*(?:is|:|=|called)?\s+([^,.;\n]+)/i);
+  if(m){let nm=m[1].replace(/\b(commercial|home|gym|with|and|of|area|size)\b.*$/i,'').trim();if(nm&&!/^(this|the|a|my|our|for)$/i.test(nm)){S.client=nm;R.ch=true;R.ok.push('Client: '+nm)}return}
+  const Z=zoneHits(c);
+  const totalWords=/\b(gym|total|facility|premises|carpet|built ?up|plot|overall|whole|entire)\b/;
+  if(!Z.length||totalWords.test(c)){
+    const am=c.match(/(?:\b(?:gym|area|space|floor|total|facility|hall|room|premises|carpet|built ?up|size|plot|place|of|is|about|around|approximately)\b\s*)(\d+(?:\.\d+)?)\s*(sqft|sqm)?/)||(!Z.length&&c.match(/(\d+(?:\.\d+)?)\s*(sqft|sqm)\b/));
+    if(am&&(am[2]||/\b(area|total|space|size|floor|gym)\b/.test(c))&&+am[1]>=25){let a=+am[1]*(am[2]==='sqm'?10.764:1);if(!Z.length||am[2]){setArea(a);R.ch=true;R.ok.push(`Area ${fmt(area())} sq ft (${S.W} × ${S.L} ft)`);c=c.replace(am[0],' ')}}
+  }
+  const cz=c.match(/\b(?:zone|area|room|space|corner)\s+(?:called|named|for)\s+([a-z][a-z ]{1,28}?)(?=\s+\d|\s*$)/);
+  if(cz){const nm=cz[1].trim().replace(/\b\w/g,x=>x.toUpperCase());const n=c.slice(cz.index+cz[0].length).match(/(\d+(?:\.\d+)?)\s*(sqft|sqm|pct)?/);
+    let a=n?+n[1]*(n[2]==='sqm'?10.764:n[2]==='pct'?A/100:1):150;upsert('custom',a,nm);R.ch=true;R.ok.push(`${nm} ${fmt(a)} sq ft`);return}
+  const N=[...c.matchAll(/(\d+(?:\.\d+)?)\s*(sqft|sqm|pct)?/g)].map(x=>({v:+x[1],u:x[2]||'',s:x.index,e:x.index+x[0].length,used:false}));
+  const rm=/\b(remove|delete|drop|no|without|exclude|skip|get rid of|don't want|do not want|cancel)\b/.test(c);
+  for(const n of N){if(n.u||n.v>80||n.v<1)continue;const after=c.slice(n.e,n.e+48);
+    const prevZ=[...Z].reverse().find(h=>h.s<n.s)||Z[0];const ctx=prevZ?.id||lastZone;const e=matchEquip(after,ctx);if(!e)continue;
+    n.used=true;let zid=(ctx&&(e.zones||[]).includes(ctx))?ctx:(e.zones||[])[0];if(!zid)continue;
+    let z=S.zones.find(q=>q.t===zid);if(!z){const cell=(+e.w+ +e.cs)*(+e.l+ +e.cf+ +e.cr);z=addZone(zid,Math.max(suggestSize(zid),Math.round(cell*n.v*1.25/10)*10));R.ok.push(`Added ${zt(zid).n}`)}
+    z.picks=z.picks||{};z.picks[e.id]=Math.round(n.v);lastZone=zid;R.ch=true;R.ok.push(`${Math.round(n.v)} × ${e.name}`);if(Z.length===1&&prevZ)Z.length=0}
+  if(!Z.length){if(!R.ok.length&&!R.ch&&c.trim())R.bad.push(c.trim());return}
+  if(rm){for(const h of Z){const b=S.zones.length;S.zones=S.zones.filter(z=>z.t!==h.id);if(S.zones.length<b){R.ok.push('Removed '+zt(h.id).n);R.ch=true}}return}
+  const free=N.filter(n=>!n.used);const before=free.length&&free[0].s<Z[0].s;
+  Z.forEach((h,k)=>{let n;
+    if(before)n=[...free].reverse().find(x=>!x.used&&x.e<=h.s&&(k===0||x.s>Z[k-1].e));
+    else n=free.find(x=>!x.used&&x.s>=h.e&&(k===Z.length-1||x.s<Z[k+1].s));
+    let a=null,how='';
+    if(n){n.used=true;if(n.u==='sqm'){a=n.v*10.764;how=` (${n.v} sq m)`}else if(n.u==='pct'||(!n.u&&n.v<50)){a=A*n.v/100;how=` (${n.v}% of floor)`}else a=n.v}
+    const existed=S.zones.some(z=>z.t===h.id);upsert(h.id,a);lastZone=h.id;R.ch=true;
+    const z=S.zones.find(q=>q.t===h.id);R.ok.push(`${zt(h.id).n} ${fmt(z.area)} sq ft${how}${!existed&&a==null?' (suggested size)':''}`)});
+}
+function run(raw){
+  raw=String(raw||'').trim();if(!raw)return;
+  const t=norm(raw),R={ok:[],bad:[],ch:false,view:false,after:[]};
+  const cm=raw.match(/\b(?:client|customer|project)(?:'s)?(?:\s+name)?\s*(?:is|:|=|called)?\s+([^,.;\n]+)/i);
+  let parts=t.split(SPL).map(s=>' '+s.trim()+' ').filter(s=>s.trim());
+  for(const c of parts){const isName=/\b(client|customer|project)\b/.test(c);clause(c,isName&&cm?cm[0]:'',R)}
+  if(R.ch){renderProject();renderZones();regen()}else if(R.view)renderStage();
+  if(R.view||R.ch)show('vPlan');
+  R.after.forEach(f=>{try{f()}catch(e){}});
+  $('#heard').innerHTML=`<span class="q">“${esc(raw)}”</span>`+R.ok.map(x=>`<span class="chip">${esc(x)}</span>`).join('')+R.bad.map(x=>`<span class="chip bad">Didn't catch: ${esc(x)}</span>`).join('')+(R.bad.length?` <button class="lnk" type="button" id="bHelp2">Examples</button>`:'');
+  $('#bHelp2')?.addEventListener('click',()=>$('#help').hidden=false);
+  if(S.speak)say(R.ok.length?R.ok.slice(0,4).join('. '):'Sorry, I did not catch that.');
+}
+function say(m){try{const u=new SpeechSynthesisUtterance(m);u.lang=S.lang;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+$('#cmdForm').addEventListener('submit',e=>{e.preventDefault();run($('#cmdIn').value);$('#cmdIn').value=''});
+$('#bHelp').addEventListener('click',()=>{const h=$('#help');h.hidden=!h.hidden});
+
+/* ---------- Voice ---------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;let rec=null,listening=false;
+function stopRec(){listening=false;try{rec&&rec.stop()}catch(e){}$('#mic').classList.remove('on');$('#mic').setAttribute('aria-label','Start voice command')}
+const micHelp='Use your device dictation in the command box instead: Win + H on Windows, Fn Fn on Mac, or the mic key on a phone keyboard.';
+$('#mic').addEventListener('click',()=>{
+  if(listening){stopRec();return}
+  if(!SR){toast('This browser has no built-in speech recognition (try Chrome or Edge). '+micHelp);$('#cmdIn').focus();return}
+  rec=new SR();rec.lang=S.lang||'en-IN';rec.interimResults=true;rec.continuous=true;rec.maxAlternatives=1;
+  rec.onresult=ev=>{let interim='';for(let i=ev.resultIndex;i<ev.results.length;i++){const r=ev.results[i];if(r.isFinal)run(r[0].transcript);else interim+=r[0].transcript}
+    if(interim)$('#heard').innerHTML=`<span class="q">Listening… “${esc(interim)}”</span>`};
+  rec.onerror=ev=>{if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){toast((inFrame?'The microphone is blocked inside this viewer. Voice works in the GitHub-hosted version. ':'Microphone permission was refused. ')+micHelp);$('#cmdIn').focus()}
+    else if(ev.error==='network')toast('Speech service unreachable (it needs internet). '+micHelp);stopRec()};
+  rec.onend=()=>{if(listening){try{rec.start()}catch(e){stopRec()}}};
+  try{rec.start();listening=true;$('#mic').classList.add('on');$('#mic').setAttribute('aria-label','Stop listening');$('#heard').innerHTML='<span class="q">Listening… speak your brief, e.g. “commercial gym 3000 square feet, cardio 700, strength 650”.</span>'}
+  catch(e){toast('Could not start the microphone. '+micHelp)}
+});
+
+/* ---------- Start ---------- */
+renderProject();ORD=Object.fromEntries(CAT.map((e,i)=>[e.id,i]));EQ=Object.fromEntries(CAT.map(e=>[e.id,e]));renderZones();regen();
+if(!inFrame&&(SRC===SAMPLE_SRC||SRC==='equipment.csv on this site')){fetch('equipment.csv',{cache:'no-store'}).then(r=>r.ok?r.text():Promise.reject()).then(t=>{const{items}=rowsToCat(parseDelim(t));if(items.length){CAT=items;SRC='equipment.csv on this site';renderZones();regen()}}).catch(()=>{})}
+}
+</script>
+</body>
+</html>
